@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/scanned"
+        android:icon="@drawable/baseline_qr_code_scanner_24_black"
+        android:title="Tarananlar" />
+    <item
+        android:id="@+id/generated"
+        android:title="Oluşturulanlar" ></item>
+    <item
+        android:id="@+id/theme"
+        android:checkable="false"
+        android:title="Tema"
+        app:showAsAction="never" >
+        <menu >
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/light"
+                    android:title="Açık" />
+                <item
+                    android:id="@+id/dark"
+                    android:title="Koyu" />
+                <item
+                    android:id="@+id/auto"
+                    android:title="Otomatik" />
+            </group>
+        </menu>
+    </item>
+</menu>

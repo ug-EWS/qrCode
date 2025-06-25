@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="color0" format="color"/> <!--> black -> light  white -> dark <!-->
+    <attr name="color1" format="color"/>
+    <attr name="color2" format="color"/>
+    <attr name="color3" format="color"/>
+    <attr name="color4" format="color"/>
+    <attr name="color5" format="color"/>
+    <attr name="color6" format="color"/>
+    <attr name="color4_0" format="color"/>
+    <attr name="color5_1" format="color"/>
+    <attr name="color6_2" format="color"/>
+    <attr name="tabpurple" format="color"/>
+    <attr name="color" format="color"/>
+</resources>

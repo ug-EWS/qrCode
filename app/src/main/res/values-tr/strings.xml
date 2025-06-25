@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">qrCode</string>
+
+    <!--Main-->
+    <string name="scan">Tara</string>
+    <string name="generate">Oluştur</string>
+    <string name="pick_from_gallery">Galeriden seç</string>
+    <string name="scan_history">Tarananlar</string>
+    <string name="generate_history">Oluşturulanlar</string>
+    <string name="sound_feedback">Sesli geri bildirim</string>
+    <string name="type_something">Bir şeyler yazın…</string>
+    <string name="color">Renk</string>
+    <string name="black_white">Siyah beyaz</string>
+    <string name="colored_foreground">Renkli ön plan</string>
+    <string name="colored_background">Renkli arka plan</string>
+    <string name="hue">Renk:</string>
+    <string name="margin">Dış boşluk</string>
+    <string name="format">Format</string>
+    <string name="generate_info">Oluşturulan barkod burada görünecek</string>
+    <string name="generate_warning">Barkod oluşturulamadı</string>
+    <string name="save">Kaydet</string>
+    <string name="share">Paylaş</string>
+
+    <!--Crop-->
+    <string name="crop_image">Resmi kırp</string>
+    <string name="cancel">İptal et</string>
+    <string name="flip_horizontally">Yatay ters çevir</string>
+    <string name="rotate_ccw">Sola döndür</string>
+    <string name="rotate_cw">Sağa döndür</string>
+    <string name="scan_this">Bu resmi tara</string>
+
+    <!--History-->
+    <string name="back">Geri</string>
+    <string name="select_all">Hepsini seç</string>
+    <string name="delete_selected">Seçilenleri sil</string>
+    <string name="result_info">Arama sonuçları burada görünecek</string>
+    <string name="result_not_found">Sonuç bulunamadı</string>
+    <string name="more_options">Diğer seçenekler</string>
+    <string name="search">Arayın</string>
+    <string name="items_selected">öge seçildi</string>
+
+    <!--Dialog-->
+    <string name="copy">Kopyala</string>
+    <string name="_share">Paylaş</string>
+    <string name="regenerate">Oluştur</string>
+    <string name="delete">Sil</string>
+    <string name="result">Sonuç</string>
+    <string name="clear_history">Geçmişi sil</string>
+    <string name="number_delete_entries">öge silinsin mi?</string>
+    <string name="dialog_delete">Silinsin</string>
+    <string name="dialog_no">Hayır</string>
+    <string name="preview">Ön izleme</string>
+    <string name="dialog_ok">Tamam</string>
+    <string name="dialog_cancel">İptal</string>
+
+    <!--Toast-->
+    <string name="saved">Kaydedildi</string>
+    <string name="could_not_save">Kaydedilemedi</string>
+    <string name="cancelled">İptal edildi</string>
+    <string name="barcode_not_found">Seçilen resim barkod içermiyor</string>
+    <string name="could_not_scan">Taranamadı</string>
+    <string name="grant_permission">Barkodların taranabilmesi için kamera izni verilmelidir</string>
+    <string name="deleted">Silindi</string>
+
+    <!---->
+
+</resources>
