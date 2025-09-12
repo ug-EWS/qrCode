@@ -35,6 +35,10 @@ public class QrCodeActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(intent, "Uygulama seçin"));
     }
 
+    public void shareResult(int index) {
+
+    }
+
     public void regenerateResult(String text) {
 
     }

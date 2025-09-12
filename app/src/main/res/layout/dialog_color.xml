@@ -4,35 +4,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
 
     <RadioGroup
         android:id="@+id/radioGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checkedButton="@id/blackWhite"
-        android:padding="16dp">
+        android:paddingTop="16dp">
 
         <RadioButton
             android:id="@+id/blackWhite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/black_white"
-            android:textColor="?color1" />
+            android:textColor="?color1"
+            android:textSize="16sp" />
 
         <RadioButton
             android:id="@+id/foreground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/colored_foreground"
-            android:textColor="?color1" />
+            android:textColor="?color1"
+            android:textSize="16sp" />
 
         <RadioButton
             android:id="@+id/background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/colored_background"
-            android:textColor="?color1" />
+            android:textColor="?color1"
+            android:textSize="16sp" />
 
     </RadioGroup>
 
@@ -40,8 +45,7 @@
         android:id="@+id/hueLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,7 +58,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="8dp"
-                android:text="@string/hue" />
+                android:text="@string/hue"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/hue"
@@ -63,7 +68,8 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:padding="8dp"
-                android:text="0" />
+                android:text="0"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -78,9 +84,52 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/shadeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="8dp"
+                android:text="Ton:"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/shade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:padding="8dp"
+                android:text="5"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/shadeSeekBar"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="10"
+            android:padding="8dp"
+            android:progress="5" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/back"
         android:gravity="center_horizontal|center_vertical"
         android:orientation="horizontal"

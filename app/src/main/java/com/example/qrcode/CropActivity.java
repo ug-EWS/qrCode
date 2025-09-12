@@ -35,7 +35,6 @@ public class CropActivity extends AppCompatActivity {
     private ImageView doneButton;
     private CropImageView cropImageView;
     private String savePath;
-    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +69,16 @@ public class CropActivity extends AppCompatActivity {
             File file = new File(savePath);
             try {
                 FileOutputStream fos = new FileOutputStream(savePath);
-                resizeBitmap(cropImageView.getCroppedImage()).compress(Bitmap.CompressFormat.PNG,100, fos);
-            } catch (FileNotFoundException e) {
+                cropImageView.getCroppedImage().compress(Bitmap.CompressFormat.PNG,100, fos); // no resizing
+
+                Intent intent = new Intent(null, Uri.fromFile(file));
+                setResult(RESULT_OK, intent);
+                finish();
+            } catch (FileNotFoundException | NullPointerException e) {
                 e.printStackTrace();
-            } catch (NullPointerException e) {
-                e.printStackTrace();
+                setResult(RESULT_CANCELED);
+                finish();
             }
-            Intent intent = new Intent(null, Uri.fromFile(file));
-            setResult(RESULT_OK, intent);
-            finish();
         });
         TooltipCompat.setTooltipText(doneButton, getString(R.string.scan_this));
 

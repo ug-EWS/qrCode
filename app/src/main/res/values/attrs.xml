@@ -10,6 +10,7 @@
     <attr name="color4_0" format="color"/>
     <attr name="color5_1" format="color"/>
     <attr name="color6_2" format="color"/>
+    <attr name="color2_1" format="color"/>
     <attr name="tabpurple" format="color"/>
     <attr name="color" format="color"/>
 </resources>

@@ -1,18 +1,20 @@
 package com.example.qrcode;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -20,15 +22,15 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.TooltipCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ScanHistoryActivity extends QrCodeActivity {
     private ImageView backButton;
@@ -39,6 +41,9 @@ public class ScanHistoryActivity extends QrCodeActivity {
     private EditText searchEditText;
     private TextView resultInfo;
     private RecyclerView recyclerView;
+
+    private ScanHistoryAdapter scanHistoryAdapter;
+    private ItemTouchHelper scanHistoryItemTouchHelper;
 
     private SharedPreferences sp;
     private SharedPreferences.Editor spe;
@@ -85,14 +90,7 @@ public class ScanHistoryActivity extends QrCodeActivity {
         TooltipCompat.setTooltipText(selectAllButton, getString(R.string.select_all));
 
         deleteButton = findViewById(R.id.deleteButton);
-        deleteButton.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-            builder.setTitle(R.string.clear_history);
-            builder.setMessage(String.valueOf(selectedItems.size()).concat(" ").concat(getString(R.string.number_delete_entries)));
-            builder.setPositiveButton(R.string.dialog_delete, (dialog, which) -> deleteResult(selectedItems));
-            builder.setNegativeButton(R.string.dialog_no, null);
-            builder.create().show();
-        });
+        deleteButton.setOnClickListener(v -> deleteResult(selectedItems));
         TooltipCompat.setTooltipText(deleteButton, getString(R.string.delete_selected));
 
         searchButton = findViewById(R.id.doneButton);
@@ -106,17 +104,19 @@ public class ScanHistoryActivity extends QrCodeActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                scanHistory.find(s.toString());
-                if (s.toString().isEmpty()) {
-                    resultInfo.setVisibility(View.VISIBLE);
-                    resultInfo.setText(R.string.result_info);
-                } else if (scanHistory.getVisibleEntriesCount() == 0) {
-                    resultInfo.setVisibility(View.VISIBLE);
-                    resultInfo.setText(R.string.result_not_found);
-                } else {
-                    resultInfo.setVisibility(View.GONE);
+                if (searchMode) {
+                    scanHistory.find(s.toString());
+                    if (s.toString().isEmpty()) {
+                        resultInfo.setVisibility(View.VISIBLE);
+                        resultInfo.setText(R.string.result_info);
+                    } else if (scanHistory.getVisibleEntriesCount() == 0) {
+                        resultInfo.setVisibility(View.VISIBLE);
+                        resultInfo.setText(R.string.result_not_found);
+                    } else {
+                        resultInfo.setVisibility(View.GONE);
+                    }
+                    recyclerView.getAdapter().notifyDataSetChanged();
                 }
-                recyclerView.getAdapter().notifyDataSetChanged();
             }
 
             @Override
@@ -129,71 +129,11 @@ public class ScanHistoryActivity extends QrCodeActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-            @NonNull
-            @Override
-            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = getLayoutInflater().inflate(R.layout.scan_item, parent, false);
-                return new RecyclerView.ViewHolder(view){};
-            }
 
-            @Override
-            public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-                View view = holder.itemView;
-                TextView text = view.findViewById(R.id.text);
-                ImageView share = view.findViewById(R.id.share);
-                CheckBox checkBox = view.findViewById(R.id.checkBox);
-                int pos = holder.getAdapterPosition();
-                HistoryEntry entry = scanHistory.getVisibleEntryAt(pos);
-
-                view.setOnClickListener(getItemClickListener(pos));
-                view.setOnLongClickListener(getItemLongClickListener(pos));
-                share.setOnClickListener(getShareClickListener(pos));
-
-                text.setText(entry.content);
-                share.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
-                TooltipCompat.setTooltipText(share, getString(R.string.share));
-                checkBox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
-                checkBox.setChecked(selectedItems.contains(pos));
-            }
-
-            @Override
-            public int getItemCount() {
-                return scanHistory.getVisibleEntriesCount();
-            }
-
-            private View.OnClickListener getShareClickListener(int pos) {
-                return v -> {
-                    shareResult(scanHistory.getVisibleEntryAt(pos).content);
-                };
-            }
-
-
-            private View.OnClickListener getItemClickListener(int pos) {
-                return v -> {
-                    if (selectionMode) {
-                        if (selectedItems.contains(pos)) selectedItems.remove((Integer)pos); else selectedItems.add(pos);
-                        if (selectedItems.isEmpty()) {
-                            switchSelectionMode(false);
-                        } else {
-                            updateTitle();
-                            recyclerView.getAdapter().notifyItemChanged(pos);
-                        }
-                    } else {
-                        resultDialog.showResult(scanHistory.getVisibleEntryAt(pos), pos);
-                    }
-                };
-            }
-
-            private View.OnLongClickListener getItemLongClickListener(int pos) {
-                return v -> {
-                    selectedItems = new ArrayList<>();
-                    selectedItems.add(pos);
-                    switchSelectionMode(true);
-                    return true;
-                };
-            }
-        });
+        scanHistoryAdapter = new ScanHistoryAdapter();
+        recyclerView.setAdapter(scanHistoryAdapter);
+        scanHistoryItemTouchHelper = new ItemTouchHelper(new ItemMoveCallback(scanHistoryAdapter));
+        scanHistoryItemTouchHelper.attachToRecyclerView(recyclerView);
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
@@ -207,7 +147,10 @@ public class ScanHistoryActivity extends QrCodeActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets insets1 = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(insets1.left, insets1.top, insets1.right, insets1.bottom);
+            Insets insets2 = insets.getInsets(WindowInsetsCompat.Type.ime());
+            boolean imeShowing = insets.isVisible(WindowInsetsCompat.Type.ime());
+            int bottom = imeShowing ? insets2.bottom : insets1.bottom;
+            v.setPadding(insets1.left, insets1.top, insets1.right, bottom);
             return insets;
         });
 
@@ -231,21 +174,42 @@ public class ScanHistoryActivity extends QrCodeActivity {
     }
 
     @Override
+    public void shareResult(int index) {
+        shareResult(scanHistory.getEntryAt(index).content);
+    }
+
+    @Override
     public void deleteResult(int index) {
         super.deleteResult(index);
-        scanHistory.removeVisibleEntryAt(index);
-        recyclerView.getAdapter().notifyItemRemoved(index);
-        setNoItemsView();
+        new AlertDialog.Builder(this, R.style.Dialog)
+                .setTitle(scanHistory.getEntryAt(index).content)
+                .setMessage("Bu öge silinsin mi?")
+                .setPositiveButton(R.string.dialog_delete, (dialog, which) -> {
+                    scanHistory.removeEntryAt(index);
+                    recyclerView.getAdapter().notifyItemRemoved(index);
+                    setNoItemsView();
+                })
+                .setNegativeButton(R.string.dialog_no, (dialog, which) -> dialog.cancel())
+                .setOnCancelListener(dialog -> recyclerView.getAdapter().notifyItemChanged(index))
+                .create().show();
     }
 
     @Override
     public void deleteResult(ArrayList<Integer> indexes) {
         super.deleteResult(indexes);
-        scanHistory.removeEntriesAt(indexes);
-        for (Integer i : indexes) recyclerView.getAdapter().notifyItemRemoved(i);
-        selectedItems.clear();
-        switchSelectionMode(false);
-        setNoItemsView();
+        if (indexes.size() == 1) deleteResult(indexes.get(0));
+        else new AlertDialog.Builder(this, R.style.Dialog)
+                    .setTitle(R.string.clear_history)
+                    .setMessage(String.valueOf(selectedItems.size()).concat(" ").concat(getString(R.string.number_delete_entries)))
+                    .setPositiveButton(R.string.dialog_delete, (dialog, which) -> {
+                        scanHistory.removeEntriesAt(indexes);
+                        for (Integer i : indexes) recyclerView.getAdapter().notifyItemRemoved(i);
+                        selectedItems.clear();
+                        switchSelectionMode(false);
+                        setNoItemsView();
+                    })
+                    .setNegativeButton(R.string.dialog_no, null)
+                    .create().show();
     }
 
     private void back() {
@@ -271,13 +235,13 @@ public class ScanHistoryActivity extends QrCodeActivity {
     private void collapseSearchView() {
         scanHistory.cancelSearch();
         recyclerView.getAdapter().notifyDataSetChanged();
+        searchMode = false;
         title.setVisibility(View.VISIBLE);
         searchButton.setVisibility(View.VISIBLE);
         searchEditText.setVisibility(View.GONE);
         searchEditText.setText("");
         setNoItemsView();
         imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        searchMode = false;
     }
 
     private void switchSelectionMode(boolean _selectionMode) {
@@ -288,13 +252,14 @@ public class ScanHistoryActivity extends QrCodeActivity {
             if (searchMode) title.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
             deleteButton.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
             selectAllButton.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
-            searchButton.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
+            searchButton.setVisibility(selectionMode || searchMode ? View.GONE : View.VISIBLE);
+            searchEditText.setVisibility(searchMode && !selectionMode ? View.VISIBLE : View.GONE);
         }
     }
 
     private void updateTitle() {
         int ite = selectedItems.size();
-        title.setText(ite == 0 ? getString(R.string.scan_history) : String.valueOf(ite).concat(" ").concat(getString(R.string.items_selected)));
+        title.setText(selectionMode ? String.valueOf(ite).concat(" ").concat(getString(R.string.items_selected)) : getString(R.string.scan_history));
     }
 
     private void setNoItemsView() {
@@ -302,5 +267,93 @@ public class ScanHistoryActivity extends QrCodeActivity {
         resultInfo.setText("Tarananlar listesi boş");
         resultInfo.setVisibility(noItems ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(noItems ? View.GONE : View.VISIBLE);
+        searchButton.setVisibility(noItems ? View.GONE : View.VISIBLE);
+    }
+
+    private class ScanHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemMoveCallback.ItemTouchHelperContract {
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = getLayoutInflater().inflate(R.layout.scan_item, parent, false);
+            return new RecyclerView.ViewHolder(view){};
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            View view = holder.itemView;
+            TextView text = view.findViewById(R.id.text);
+            TextView date = view.findViewById(R.id.date);
+            CheckBox checkBox = view.findViewById(R.id.checkBox);
+            int pos = holder.getAdapterPosition();
+            HistoryEntry entry = scanHistory.getVisibleEntryAt(pos);
+
+            view.setOnClickListener(getItemClickListener(pos));
+            view.setOnLongClickListener(getItemLongClickListener(pos));
+
+            if (searchMode) {
+                String searchQuery = searchEditText.getText().toString().toLowerCase();
+                int foundAtStart = entry.content.toLowerCase().indexOf(searchQuery);
+                int foundAtEnd = foundAtStart + searchQuery.length();
+                SpannableString spannableString = new SpannableString(entry.content);
+                spannableString.setSpan(new ForegroundColorSpan(getColor(R.color.yellow)),
+                        foundAtStart,
+                        foundAtEnd,
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                text.setText(spannableString, TextView.BufferType.SPANNABLE);
+            } else text.setText(entry.content);
+            date.setText(entry.getVisibleDate("d MMM yyyy, HH.mm"));
+            checkBox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
+            checkBox.setChecked(selectedItems.contains(pos));
+        }
+
+        @Override
+        public int getItemCount() {
+            return scanHistory.getVisibleEntriesCount();
+        }
+
+        private View.OnClickListener getItemClickListener(int pos) {
+            return v -> {
+                if (selectionMode) {
+                    if (selectedItems.contains(pos)) selectedItems.remove((Integer)pos); else selectedItems.add(pos);
+                    if (selectedItems.isEmpty()) {
+                        switchSelectionMode(false);
+                    } else {
+                        updateTitle();
+                        recyclerView.getAdapter().notifyItemChanged(pos);
+                    }
+                } else {
+                    resultDialog.showResult(scanHistory.getVisibleEntryAt(pos), pos);
+                }
+            };
+        }
+
+        private View.OnLongClickListener getItemLongClickListener(int pos) {
+            return v -> {
+                selectedItems = new ArrayList<>();
+                selectedItems.add(pos);
+                switchSelectionMode(true);
+                return true;
+            };
+        }
+
+        @Override
+        public boolean isSwipeEnabled() {
+            return !selectionMode;
+        }
+
+        @Override
+        public void onSwipe(RecyclerView.ViewHolder myViewHolder, int i) {
+            int position = myViewHolder.getAdapterPosition();
+            if (i == ItemTouchHelper.START) {
+                shareResult(position);
+                notifyItemChanged(position);
+            }
+            else deleteResult(position);
+        }
+
+        @Override
+        public Context getContext() {
+            return ScanHistoryActivity.this;
+        }
     }
 }

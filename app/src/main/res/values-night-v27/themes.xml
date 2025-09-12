@@ -26,11 +26,12 @@
         <item name="color4_0">@color/grey3</item>
         <item name="color5_1">@color/grey2</item>
         <item name="color6_2">@color/grey1_1</item>
+        <item name="color2_1">@color/grey4</item>
         <item name="tabpurple">@color/purple_500</item>
 
         <item name="fontFamily">@font/oxygen</item>
     </style>
     <style name="Dialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="android:background">@color/grey1</item>
+        <item name="android:background">@color/grey1_1</item>
     </style>
 </resources>

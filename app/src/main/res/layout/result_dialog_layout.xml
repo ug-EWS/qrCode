@@ -6,16 +6,42 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="TextView"
+            android:textColor="?color3" />
+
+        <TextView
+            android:id="@+id/format"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PNG" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/resultText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:autoLink="all"
-        android:background="@drawable/back_light"
+        android:background="@drawable/edit_text_bg"
         android:padding="16dp"
         android:text="TextView"
         android:textIsSelectable="true"
@@ -26,9 +52,10 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/back_light"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/edit_text_bg"
         android:padding="16dp"
         tools:srcCompat="@tools:sample/avatars" />
 
@@ -37,102 +64,52 @@
         android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
 
-        <Button
+        <ImageView
             android:id="@+id/copyButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:backgroundTint="?color5_1"
-            android:fontFamily="sans-serif"
-            android:letterSpacing="0.03"
-            android:lines="1"
-            android:minWidth="60dp"
-            android:minHeight="60dp"
-            android:paddingLeft="0dp"
-            android:paddingTop="8dp"
-            android:paddingRight="0dp"
-            android:paddingBottom="8dp"
-            android:textAllCaps="false"
-            android:textColor="#606060"
-            app:cornerRadius="8dp"
-            app:icon="@drawable/baseline_content_copy_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="?color2" />
+            android:background="@drawable/list_item_ripple"
+            android:padding="16dp"
+            app:srcCompat="@drawable/baseline_content_copy_24"
+            app:tint="?tabpurple" />
 
-        <Button
+        <ImageView
             android:id="@+id/shareButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:backgroundTint="?color5_1"
-            android:fontFamily="sans-serif"
-            android:letterSpacing="0.03"
-            android:lines="1"
-            android:minWidth="60dp"
-            android:minHeight="60dp"
-            android:paddingLeft="0dp"
-            android:paddingTop="8dp"
-            android:paddingRight="0dp"
-            android:paddingBottom="8dp"
-            android:textAllCaps="false"
-            android:textColor="#606060"
-            app:cornerRadius="8dp"
-            app:icon="@drawable/baseline_share_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="?color2" />
+            android:background="@drawable/list_item_ripple"
+            android:padding="16dp"
+            app:srcCompat="@drawable/baseline_share_24"
+            app:tint="?tabpurple" />
 
-        <Button
+        <ImageView
             android:id="@+id/regenerateButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:backgroundTint="?color5_1"
-            android:fontFamily="sans-serif"
-            android:letterSpacing="0.03"
-            android:lines="1"
-            android:minWidth="60dp"
-            android:minHeight="60dp"
-            android:paddingLeft="0dp"
-            android:paddingTop="8dp"
-            android:paddingRight="0dp"
-            android:paddingBottom="8dp"
-            android:textAllCaps="false"
-            android:textColor="#606060"
-            app:cornerRadius="8dp"
-            app:icon="@drawable/baseline_autorenew_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="?color2" />
+            android:background="@drawable/list_item_ripple"
+            android:padding="16dp"
+            app:srcCompat="@drawable/baseline_autorenew_24"
+            app:tint="?tabpurple" />
 
-        <Button
+        <ImageView
             android:id="@+id/deleteButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:backgroundTint="?color5_1"
-            android:fontFamily="sans-serif"
-            android:letterSpacing="0.03"
-            android:lines="1"
-            android:minWidth="60dp"
-            android:minHeight="60dp"
-            android:paddingLeft="0dp"
-            android:paddingTop="8dp"
-            android:paddingRight="0dp"
-            android:paddingBottom="8dp"
-            android:textAllCaps="false"
-            android:textColor="#aa6060"
-            app:cornerRadius="8dp"
-            app:icon="@drawable/baseline_delete_forever_24"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="#bb4040" />
+            android:background="@drawable/list_item_ripple"
+            android:padding="16dp"
+            app:srcCompat="@drawable/baseline_delete_forever_24"
+            app:tint="#FFFF0000" />
 
     </LinearLayout>
 

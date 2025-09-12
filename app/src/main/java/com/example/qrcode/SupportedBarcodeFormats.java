@@ -1,11 +1,7 @@
 package com.example.qrcode;
 
-import com.google.zxing.BarcodeFormat;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import uk.org.okapibarcode.OkapiBarcode;
 import uk.org.okapibarcode.backend.AustraliaPost;
 import uk.org.okapibarcode.backend.AztecCode;
 import uk.org.okapibarcode.backend.AztecRune;
@@ -30,6 +26,7 @@ import uk.org.okapibarcode.backend.DataMatrix;
 import uk.org.okapibarcode.backend.DpdCode;
 import uk.org.okapibarcode.backend.Ean;
 import uk.org.okapibarcode.backend.GridMatrix;
+import uk.org.okapibarcode.backend.HumanReadableLocation;
 import uk.org.okapibarcode.backend.JapanPost;
 import uk.org.okapibarcode.backend.KixCode;
 import uk.org.okapibarcode.backend.KoreaPost;
@@ -53,18 +50,26 @@ import uk.org.okapibarcode.backend.UspsOneCode;
 public class SupportedBarcodeFormats {
     private ArrayList<String> formats;
     private ArrayList<Symbol> symbols;
-    private ArrayList<BarcodeFormat> barcodeFormats;
+    private ArrayList<Boolean> hasReadable;
 
     SupportedBarcodeFormats() {
         formats = new ArrayList<>();
         symbols = new ArrayList<>();
-        barcodeFormats = new ArrayList<>();
 
         formats.add("QR Code");
         symbols.add(new QrCode());
 
-        formats.add("Australia Post");
-        symbols.add(new AustraliaPost());
+        formats.add("Australia Post (Standard Customer)");
+        symbols.add(new AustraliaPost(AustraliaPost.Mode.POST));
+
+        formats.add("Australia Post (Reply Paid)");
+        symbols.add(new AustraliaPost(AustraliaPost.Mode.REPLY));
+
+        formats.add("Australia Post (Routing)");
+        symbols.add(new AustraliaPost(AustraliaPost.Mode.ROUTE));
+
+        formats.add("Australia Post (Redirection)");
+        symbols.add(new AustraliaPost(AustraliaPost.Mode.REDIRECT));
 
         formats.add("Aztec Code");
         symbols.add(new AztecCode());
@@ -90,8 +95,32 @@ public class SupportedBarcodeFormats {
         formats.add("Code 16k");
         symbols.add(new Code16k());
 
-        formats.add("Code 2 of 5");
-        symbols.add(new Code2Of5());
+        formats.add("Code 2 of 5 (Matrix)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.MATRIX));
+
+        formats.add("Code 2 of 5 (Industrial)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.INDUSTRIAL));
+
+        formats.add("Code 2 of 5 (IATA)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.IATA));
+
+        formats.add("Code 2 of 5 (Datalogic)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.DATA_LOGIC));
+
+        formats.add("Code 2 of 5 (Interleaved)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.INTERLEAVED));
+
+        formats.add("Code 2 of 5 (Interleaved with Check Digit)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.INTERLEAVED_WITH_CHECK_DIGIT));
+
+        formats.add("Code 2 of 5 (ITF-14)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.ITF14));
+
+        formats.add("Code 2 of 5 (Deutsche Post Leitcode)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.DP_LEITCODE));
+
+        formats.add("Code 2 of 5 (Deutsche Post Identcode)");
+        symbols.add(new Code2Of5(Code2Of5.ToFMode.DP_IDENTCODE));
 
         formats.add("Code 32 (Italian Pharmacode)");
         symbols.add(new Code32());
@@ -121,10 +150,10 @@ public class SupportedBarcodeFormats {
         symbols.add(new KixCode());
 
         formats.add("EAN-13");
-        symbols.add(new Ean());
+        symbols.add(new Ean(Ean.Mode.EAN13));
 
         formats.add("EAN-8");
-        symbols.add(new Ean());
+        symbols.add(new Ean(Ean.Mode.EAN8));
 
         formats.add("Grid Matrix");
         symbols.add(new GridMatrix());
@@ -132,11 +161,24 @@ public class SupportedBarcodeFormats {
         formats.add("GS1 Composite");
         symbols.add(new Composite());
 
-        formats.add("GS1 DataBar");
-        symbols.add(new DataBar14());
+        formats.add("GS1 DataBar (Linear)");
+        symbols.add(new DataBar14(DataBar14.Mode.LINEAR));
+
+        formats.add("GS1 DataBar (Stacked)");
+        symbols.add(new DataBar14(DataBar14.Mode.STACKED));
+
+        formats.add("GS1 DataBar (Stacked Omnidirectional)");
+        symbols.add(new DataBar14(DataBar14.Mode.OMNI));
 
         formats.add("GS1 DataBar Expanded");
-        symbols.add(new DataBarExpanded());
+        DataBarExpanded dataBarExpanded = new DataBarExpanded();
+        dataBarExpanded.setStacked(false);
+        symbols.add(dataBarExpanded);
+
+        formats.add("GS1 DataBar Expanded (Stacked)");
+        dataBarExpanded = new DataBarExpanded();
+        dataBarExpanded.setStacked(true);
+        symbols.add(dataBarExpanded);
 
         formats.add("GS1 DataBar Limited");
         symbols.add(new DataBarLimited());
@@ -157,7 +199,13 @@ public class SupportedBarcodeFormats {
         symbols.add(new MsiPlessey());
 
         formats.add("PDF417");
-        symbols.add(new Pdf417());
+        symbols.add(new Pdf417(Pdf417.Mode.NORMAL));
+
+        formats.add("PDF417 (Truncated / Compact)");
+        symbols.add(new Pdf417(Pdf417.Mode.TRUNCATED));
+
+        formats.add("PDF417 (Micro)");
+        symbols.add(new Pdf417(Pdf417.Mode.MICRO));
 
         formats.add("Pharmacode");
         symbols.add(new Pharmacode());
@@ -178,33 +226,39 @@ public class SupportedBarcodeFormats {
         symbols.add(new SwissQrCode());
 
         formats.add("Telepen");
-        symbols.add(new Telepen());
+        symbols.add(new Telepen(Telepen.Mode.NORMAL));
 
         formats.add("Telepen Numeric");
-        symbols.add(new Telepen());
+        symbols.add(new Telepen(Telepen.Mode.NUMERIC));
 
         formats.add("UPC-A");
-        symbols.add(new Upc());
+        symbols.add(new Upc(Upc.Mode.UPCA));
 
         formats.add("UPC-E");
-        symbols.add(new Upc());
+        symbols.add(new Upc(Upc.Mode.UPCE));
 
         formats.add("UPN QR");
         symbols.add(new UpnQr());
 
         formats.add("USPS OneCode");
         symbols.add(new UspsOneCode());
+
+        hasReadable = new ArrayList<>();
+        for (Symbol i : symbols) hasReadable.add(i.getHumanReadableLocation() != HumanReadableLocation.NONE);
     }
 
     public ArrayList<String> getFormats() {
         return formats;
     }
 
+    public String getFormatName(int index) {
+        return formats.get(index);
+    }
+
     public Symbol getSymbol(int index) {
         return symbols.get(index);
     }
-
-    public boolean isFormatSupported(String format) {
-        return formats.contains(format);
+    public boolean isReadable(int index) {
+        return hasReadable.get(index);
     }
 }

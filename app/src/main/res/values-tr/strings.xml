@@ -4,7 +4,7 @@
     <!--Main-->
     <string name="scan">Tara</string>
     <string name="generate">Oluştur</string>
-    <string name="pick_from_gallery">Galeriden seç</string>
+    <string name="pick_from_gallery">GALERİDEN SEÇ</string>
     <string name="scan_history">Tarananlar</string>
     <string name="generate_history">Oluşturulanlar</string>
     <string name="sound_feedback">Sesli geri bildirim</string>
@@ -20,6 +20,7 @@
     <string name="generate_warning">Barkod oluşturulamadı</string>
     <string name="save">Kaydet</string>
     <string name="share">Paylaş</string>
+    <string name="or">ya da</string>
 
     <!--Crop-->
     <string name="crop_image">Resmi kırp</string>

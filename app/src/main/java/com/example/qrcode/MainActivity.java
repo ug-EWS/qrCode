@@ -7,13 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.graphics.Canvas;
 import android.graphics.ImageDecoder;
-import android.hardware.Camera;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
+import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,19 +21,19 @@ import android.transition.TransitionManager;
 import android.view.Menu;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowInsets;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -54,7 +50,6 @@ import com.budiyev.android.codescanner.CodeScannerView;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.transition.platform.MaterialSharedAxis;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
@@ -74,6 +69,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -96,14 +92,27 @@ public class MainActivity extends QrCodeActivity {
     private TextView marginText;
     private LinearLayout formatButton;
     private TextView formatText;
+    private LinearLayout readableButton;
+    private TextView readableText;
+    private LinearLayout sizeButton;
+    private TextView sizeText;
+    private LinearLayout fileButton;
+    private TextView fileText;
+    private LinearLayout barLengthButton;
+    private TextView barLengthText;
+    private LinearLayout expandButton;
+    private TextView expandText;
     private LinearLayout infoLayout;
     private LinearLayout warningLayout;
     private TextView warningText;
     private LinearLayout resultLayout;
     private ImageView resultImage;
-    private Button saveButton;
-    private Button shareButton;
-    private Button galleryButton;
+    private TextView resultSize;
+    private LinearLayout optionsLayout;
+    private LinearLayout bottomLayout;
+    private LinearLayout saveButton;
+    private LinearLayout shareButton;
+    private TextView galleryButton;
 
     private CodeScanner codeScanner;
     private ResultDialog resultDialog;
@@ -113,11 +122,19 @@ public class MainActivity extends QrCodeActivity {
     private int format;
     private int formatSelection;
     private int zoom;
+    private int barLength;
+    private int size;
+    private int fileFormat;
+    private int fileFormatSelection;
+    private boolean readable;
+    private boolean readableSelection;
+    private String bitmapSize;
     private SupportedBarcodeFormats supportedBarcodeFormats;
     private HistoryManager scanHistory;
     private HistoryManager generateHistory;
 
     private boolean saved;
+    private boolean expanded;
     private int theme;
     private Timer timer;
 
@@ -125,6 +142,7 @@ public class MainActivity extends QrCodeActivity {
     private SharedPreferences.Editor spe;
 
     private Bitmap generatedBitmap;
+    private byte[] svgContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,14 +158,18 @@ public class MainActivity extends QrCodeActivity {
         codeScanner = new CodeScanner(this, scannerView, CodeScanner.CAMERA_BACK);
         codeScanner.setDecodeCallback(result -> runOnUiThread(() -> newScanEntry(result.getText())));
         codeScanner.setErrorCallback(thrown -> showMessage(getString(R.string.could_not_scan)));
-
         setCurrentTab(0);
 
         supportedBarcodeFormats = new SupportedBarcodeFormats();
         qrCodeColor = new QRCodeColor();
-        margin = 32;
+        margin = 5;
         format = 0;
+        barLength = 40;
+        size = 10;
+        fileFormat = 0;
+        readable = false;
         saved = false;
+        expanded = false;
 
         theme = sp.getInt("theme", 0);
     }
@@ -169,9 +191,9 @@ public class MainActivity extends QrCodeActivity {
     protected void onStart() {
         super.onStart();
         Intent intent = getIntent();
-        if (intent.getAction().equals("com.qrx.ACTION_REGENERATE")) {
+        if (intent.getAction().equals("com.qrx.ACTION_REGENERATE"))
             regenerateResult(intent.getStringExtra("content"));
-        }
+
         if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
             String[] permissions = {Manifest.permission.CAMERA};
             requestPermissions(permissions, 101);
@@ -193,7 +215,7 @@ public class MainActivity extends QrCodeActivity {
 
     @Override
     protected void onPause() {
-        if (tabLayout.getSelectedTabPosition() == 0) codeScanner.stopPreview();
+        if (tabLayout.getSelectedTabPosition() == 0) codeScanner.releaseResources();
         super.onPause();
     }
 
@@ -239,11 +261,24 @@ public class MainActivity extends QrCodeActivity {
         marginText = findViewById(R.id.marginText);
         formatButton = findViewById(R.id.formatButton);
         formatText = findViewById(R.id.formatText);
+        fileButton = findViewById(R.id.fileTypeButton);
+        fileText = findViewById(R.id.fileTypeText);
+        sizeButton = findViewById(R.id.sizeButton);
+        sizeText = findViewById(R.id.sizeText);
+        readableButton = findViewById(R.id.readableButton);
+        readableText = findViewById(R.id.readableText);
+        barLengthButton = findViewById(R.id.barLengthButton);
+        barLengthText = findViewById(R.id.barLengthText);
+        expandButton = findViewById(R.id.expandButton);
+        expandText = findViewById(R.id.expandText);
         infoLayout = findViewById(R.id.infoLayout);
         warningLayout = findViewById(R.id.warningLayout);
         warningText = findViewById(R.id.warningText);
         resultLayout = findViewById(R.id.resultLayout);
         resultImage = findViewById(R.id.resultImage);
+        resultSize = findViewById(R.id.resultSize);
+        optionsLayout = findViewById(R.id.optionsLayout);
+        bottomLayout = findViewById(R.id.bottomLayout);
         saveButton = findViewById(R.id.saveButton);
         shareButton = findViewById(R.id.shareButton);
         optionsButton.setOnClickListener(v -> getOptionsPopupMenu().show());
@@ -317,6 +352,11 @@ public class MainActivity extends QrCodeActivity {
         colorButton.setOnClickListener(v -> showColorDialog());
         marginButton.setOnClickListener(v -> showMarginDialog());
         formatButton.setOnClickListener(v -> showFormatDialog());
+        readableButton.setOnClickListener(v -> showReadableDialog());
+        sizeButton.setOnClickListener(v -> showSizeDialog());
+        fileButton.setOnClickListener(v -> showFileDialog());
+        barLengthButton.setOnClickListener(v -> showBarLengthDialog());
+        expandButton.setOnClickListener(v -> setExpanded(!expanded));
         saveButton.setOnClickListener(v -> saveGenerated());
         shareButton.setOnClickListener(v -> shareGenerated());
 
@@ -327,19 +367,33 @@ public class MainActivity extends QrCodeActivity {
                     .build()));
 
         resultImage.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            ImageView imageView = new ImageView(this);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
+            View layout = getLayoutInflater().inflate(R.layout.dialog_preview, null);
+            ImageView imageView = layout.findViewById(R.id.image);
             imageView.setImageBitmap(generatedBitmap);
+            TextView textView = layout.findViewById(R.id.text);
+            textView.setText(bitmapSize);
             builder.setTitle(R.string.preview);
-            builder.setView(imageView);
+            builder.setView(layout);
             builder.setPositiveButton(R.string.dialog_ok, null);
             builder.create().show();
         });
 
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (expanded) setExpanded(false);
+                else finish();
+            }
+        });
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets insets1 = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(insets1.left, insets1.top, insets1.right, insets1.bottom);
+            Insets insets2 = insets.getInsets(WindowInsetsCompat.Type.ime());
+            boolean imeShowing = insets2.bottom > insets1.bottom;
+            v.setPadding(insets1.left, insets1.top, insets1.right, Math.max(insets2.bottom, insets1.bottom));
+            optionsLayout.setVisibility(imeShowing ? View.GONE : View.VISIBLE);
+            bottomLayout.setVisibility(imeShowing ? View.GONE : View.VISIBLE);
             return insets;
         });
     }
@@ -357,25 +411,25 @@ public class MainActivity extends QrCodeActivity {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent intent = result.getData();
                     Uri uri = intent != null ? intent.getData() : null;
-                    Bitmap bitmap;
-                    try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), uri);
-                            bitmap = ImageDecoder.decodeBitmap(source);
+                    if (uri != null) {
+                        Bitmap bitmap;
+                        try {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), uri);
+                                bitmap = ImageDecoder.decodeBitmap(source);
+                            } else {
+                                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                            }
+                            Bitmap soft = null;
+                            if (bitmap != null) soft = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                            if (soft != null) scanImage(soft);
+                            else showMessage("null");
+                        } catch (IOException e) {
+                            showMessage("Dosyaya erişilemiyor");
+                            e.printStackTrace();
                         }
-                        else {
-                            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                        }
-                        Bitmap soft = null;
-                        if (bitmap != null) soft = bitmap.copy(Bitmap.Config.ARGB_8888, false);
-                        if (soft != null) scanImage(soft); else showMessage("null");
-                    } catch (IOException e) {
-                        showMessage("Dosyaya erişilemiyor");
-                        e.printStackTrace();
-                    }
-                } else {
-                    showMessage(getString(R.string.cancelled));
-                }
+                    } else showMessage("Dosyaya erişilemiyor");
+                } else showMessage(getString(R.string.cancelled));
             }
     );
 
@@ -402,9 +456,9 @@ public class MainActivity extends QrCodeActivity {
         } catch (NotFoundException e) {
             showMessage(getString(R.string.barcode_not_found));
         } catch (ChecksumException e) {
-            showMessage("Checksum exception");
+            showMessage("Barkod düzgün okunamadı (ChecksumException).");
         } catch (FormatException e) {
-            showMessage("Format exception");
+            showMessage("Barkod düzgün okunamadı (FormatException).");
         }
     }
 
@@ -457,10 +511,11 @@ public class MainActivity extends QrCodeActivity {
     }
 
     private void setCurrentTab(int index) {
-        TransitionManager.beginDelayedTransition(findViewById(R.id.mainScreen), new MaterialSharedAxis(MaterialSharedAxis.X, index == 1));
+        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(generateEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         scanScreen.setVisibility(index == 0 ? View.VISIBLE : View.GONE);
         generateScreen.setVisibility(index == 1 ? View.VISIBLE : View.GONE);
-        if (index == 0) restartCameraPreview(); else codeScanner.stopPreview();
+        if (index == 0) restartCameraPreview(); else codeScanner.releaseResources();
     }
 
     private void showColorDialog() {
@@ -474,6 +529,9 @@ public class MainActivity extends QrCodeActivity {
         LinearLayout hueLayout = dialogView.findViewById(R.id.hueLayout);
         TextView hue = dialogView.findViewById(R.id.hue);
         SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
+        LinearLayout shadeLayout = dialogView.findViewById(R.id.shadeLayout);
+        TextView shade = dialogView.findViewById(R.id.shade);
+        SeekBar shadeSeekBar = dialogView.findViewById(R.id.shadeSeekBar);
         ImageView preview = dialogView.findViewById(R.id.preview);
 
         QRCodeColor preCol = new QRCodeColor();
@@ -481,22 +539,21 @@ public class MainActivity extends QrCodeActivity {
         radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.blackWhite) {
                 preCol.setColorMode(QRCodeColor.COLOR_BLACK_WHITE);
-                preview.setBackgroundColor(Color.WHITE);
-                preview.setColorFilter(Color.BLACK);
                 hueLayout.setVisibility(View.GONE);
+                shadeLayout.setVisibility(View.GONE);
             }
             if (checkedId == R.id.foreground) {
                 preCol.setColorMode(QRCodeColor.COLOR_FOREGROUND);
-                preview.setBackgroundColor(Color.WHITE);
-                preview.setColorFilter(preCol.foregroundColorInt);
                 hueLayout.setVisibility(View.VISIBLE);
+                shadeLayout.setVisibility(View.VISIBLE);
             }
             if (checkedId == R.id.background) {
                 preCol.setColorMode(QRCodeColor.COLOR_BACKGROUND);
-                preview.setColorFilter(Color.BLACK);
-                preview.setBackgroundColor(preCol.backgroundColorInt);
                 hueLayout.setVisibility(View.VISIBLE);
+                shadeLayout.setVisibility(View.VISIBLE);
             }
+            preview.setBackgroundColor(preCol.backgroundColorInt);
+            preview.setColorFilter(preCol.foregroundColorInt);
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -519,13 +576,35 @@ public class MainActivity extends QrCodeActivity {
             }
         });
 
+        shadeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                preCol.setShade(progress);
+                shade.setText(String.valueOf(progress));
+                preview.setBackgroundColor(preCol.backgroundColorInt);
+                preview.setColorFilter(preCol.foregroundColorInt);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         radioGroup.check(
-                qrCodeColor.getColorMode() == qrCodeColor.COLOR_BLACK_WHITE ? R.id.blackWhite :
-                        qrCodeColor.getColorMode() == qrCodeColor.COLOR_FOREGROUND ? R.id.foreground :
+                qrCodeColor.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ? R.id.blackWhite :
+                        qrCodeColor.getColorMode() == QRCodeColor.COLOR_FOREGROUND ? R.id.foreground :
                                 R.id.background);
 
         seekBar.setProgress(qrCodeColor.getHue());
         hueLayout.setVisibility(preCol.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ? View.GONE : View.VISIBLE);
+        shadeSeekBar.setProgress(qrCodeColor.getShade());
+        shadeLayout.setVisibility(preCol.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ? View.GONE : View.VISIBLE);
 
         builder.setTitle(R.string.color);
         builder.setIcon(R.drawable.baseline_color_lens_24);
@@ -544,6 +623,7 @@ public class MainActivity extends QrCodeActivity {
                 colorText.setText(R.string.colored_background);
             }
             qrCodeColor.setHue(seekBar.getProgress());
+            qrCodeColor.setShade(shadeSeekBar.getProgress());
             if (!generateEditText.getText().toString().isEmpty()) generateCode();
         });
         builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
@@ -562,7 +642,7 @@ public class MainActivity extends QrCodeActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                text.setText(String.valueOf(progress * 8 + 16).concat(" px"));
+                text.setText(String.valueOf(progress + 1).concat(" px"));
             }
 
             @Override
@@ -576,14 +656,14 @@ public class MainActivity extends QrCodeActivity {
             }
         });
 
-        seekBar.setProgress((margin - 16) / 8);
+        seekBar.setProgress(margin - 1);
 
         builder.setTitle(R.string.margin);
         builder.setIcon(R.drawable.baseline_margin_24);
         builder.setView(dialogView);
         builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            margin = seekBar.getProgress() * 8 + 16;
-            marginText.setText(String.valueOf(margin).concat(" px"));
+            margin = seekBar.getProgress() + 1;
+            marginText.setText(text.getText());
             if (!generateEditText.getText().toString().isEmpty()) generateCode();
         });
         builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
@@ -596,13 +676,125 @@ public class MainActivity extends QrCodeActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
         builder.setTitle(R.string.format);
         builder.setIcon(R.drawable.baseline_dataset_24);
-        builder.setSingleChoiceItems(supportedBarcodeFormats.getFormats().toArray(new String[0]), format, (dialog, which) -> {formatSelection = which;});
+        builder.setSingleChoiceItems(supportedBarcodeFormats.getFormats().toArray(new String[0]), format, (dialog, which) -> formatSelection = which);
         builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
             format = formatSelection;
             formatText.setText(supportedBarcodeFormats.getFormats().get(format));
             if (!generateEditText.getText().toString().isEmpty()) generateCode();
         });
+        builder.setNegativeButton(R.string.dialog_cancel, null);
         builder.create().show();
+    }
+
+    private void showBarLengthDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_module_width, null);
+        TextView text = dialogView.findViewById(R.id.text);
+        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                text.setText(String.valueOf((progress + 1) * 10));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar.setProgress((barLength / 10) - 1);
+        builder.setTitle("Çizgi uzunluğu");
+        builder.setIcon(R.drawable.baseline_height_24);
+        builder.setView(dialogView);
+        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
+            barLength = (seekBar.getProgress() + 1) * 10;
+            barLengthText.setText(text.getText());
+            if (!generateEditText.getText().toString().isEmpty()) generateCode();
+        });
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.create().show();
+    }
+
+    private void showSizeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_size, null);
+        TextView text = dialogView.findViewById(R.id.text);
+        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                text.setText(String.valueOf(progress + 1));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar.setProgress(size - 1);
+        builder.setTitle("Büyütme katsayısı");
+        builder.setIcon(R.drawable.baseline_zoom_out_map_24);
+        builder.setView(dialogView);
+        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
+            size = seekBar.getProgress() + 1;
+            sizeText.setText(text.getText());
+            if (!generateEditText.getText().toString().isEmpty()) generateCode();
+        });
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.create().show();
+    }
+
+
+
+    private void showFileDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
+        String[] options = {"Bit eşlem (.png)", "Bit eşlem (.jpeg)", "Bit eşlem (.webp)", "Vektör (.svg)"};
+        builder.setTitle("Dosya türü");
+        builder.setIcon(R.drawable.baseline_photo_library_24);
+        builder.setSingleChoiceItems(options, fileFormat, (dialog, which) -> fileFormatSelection = which);
+        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
+            fileFormat = fileFormatSelection;
+            fileText.setText(options[fileFormat]);
+        });
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.create().show();
+    }
+
+    private void showReadableDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
+        String[] options = {"Göster", "Gizle"};
+        builder.setTitle("Barkod yazısı");
+        builder.setIcon(R.drawable.baseline_text_fields_24);
+        builder.setSingleChoiceItems(options, readable ? 0 : 1, (dialog, which) -> readableSelection = which == 0);
+        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
+            readable = readableSelection;
+            readableText.setText(options[readable ? 0 : 1]);
+            if (!generateEditText.getText().toString().isEmpty()) generateCode();
+        });
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.create().show();
+    }
+
+    private void setExpanded(boolean _expanded) {
+        expanded = _expanded;
+        TransitionManager.beginDelayedTransition(generateScreen);
+        marginButton.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        readableButton.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        sizeButton.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        fileButton.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        barLengthButton.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        generateEditText.setVisibility(expanded ? View.INVISIBLE : View.VISIBLE);
+        expandText.setText(expanded ? "Diğer seçenekleri gizle" : "Diğer seçenekleri göster");
     }
 
     private void generateCode() {
@@ -616,31 +808,46 @@ public class MainActivity extends QrCodeActivity {
             return;
         }
         Symbol symbol = supportedBarcodeFormats.getSymbol(format);
-        if (supportedBarcodeFormats.getFormats().get(format).contains("EAN")) {
-            if (text.length() == 8) text = text.substring(0, 7);
-            if (text.length() == 13) text = text.substring(0, 12);
-        }
-        symbol.setFontName("Monospaced");
-        symbol.setFontSize(16);
-        symbol.setModuleWidth(24);
-        symbol.setBarHeight(512);
-        symbol.setQuietZoneHorizontal(margin);
+        boolean hasReadable = supportedBarcodeFormats.isReadable(format);
+        String name = supportedBarcodeFormats.getFormatName(format);
+
+        if (name.equals("EAN-8") && text.length() == 8) text = text.substring(0, 7);
+        if (name.equals("EAN-13") && text.length() == 13) text = text.substring(0, 12);
+
+        symbol.setModuleWidth(1);
+        symbol.setBarHeight(barLength);
+        symbol.setQuietZoneHorizontal(readable && hasReadable ? margin + 8 : margin);
         symbol.setQuietZoneVertical(margin);
-        symbol.setHumanReadableLocation(HumanReadableLocation.NONE);
+        symbol.setHumanReadableLocation(readable && hasReadable ? HumanReadableLocation.BOTTOM : HumanReadableLocation.NONE);
+        symbol.setFontName("Monospace");
+        symbol.setFontSize(8);
+        if (symbol.supportsEci() && symbol.getEciMode() != 4) symbol.setEciMode(26);
         try {
             symbol.setContent(text);
             try {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                SvgRenderer renderer = new SvgRenderer(stream, 1, qrCodeColor.backgroundColor, qrCodeColor.foregroundColor, true);
+                SvgRenderer renderer = new SvgRenderer(stream, size, qrCodeColor.backgroundColor, qrCodeColor.foregroundColor, true);
                 renderer.render(symbol);
-                String content = new String(stream.toByteArray(), StandardCharsets.UTF_8);
+                svgContent = stream.toByteArray();
+                String content = new String(svgContent, StandardCharsets.UTF_8);
                 SVG svg = SVG.getFromString(content);
+                svg.renderToCanvas(new Canvas());
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     generatedBitmap = Bitmap.createBitmap(svg.renderToPicture());
-                    resultImage.setBackgroundColor(qrCodeColor.backgroundColorInt);
-                    resultImage.setImageBitmap(generatedBitmap);
+                } else {
+                    Picture picture = svg.renderToPicture();
+                    Bitmap bitmap = Bitmap.createBitmap(picture.getWidth(), picture.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+                    canvas.drawPicture(picture);
+                    generatedBitmap = bitmap;
                 }
+                bitmapSize = String.format("%d x %d", generatedBitmap.getWidth(), generatedBitmap.getHeight());
+
+                resultImage.setImageBitmap(generatedBitmap);
+                resultSize.setText(bitmapSize);
                 resultLayout.setVisibility(View.VISIBLE);
+
             } catch (IOException | SVGParseException e) {
                 e.printStackTrace();
                 warningText.setText(R.string.generate_warning);
@@ -648,7 +855,15 @@ public class MainActivity extends QrCodeActivity {
             }
         } catch (OkapiInputException e) {
             e.printStackTrace();
-            warningText.setText("Girdiğiniz yazı bu format\n için uygun değil");
+            String message = "Girdiğiniz yazı bu format\n için uygun değil";
+            String eMessage = e.getMessage();
+            if (eMessage != null) {
+                if (eMessage.contains("too long"))
+                    message = "Girdiğiniz yazı bu format için çok uzun.";
+                if (eMessage.contains("invalid") || eMessage.contains("Invalid"))
+                    message = "Girdiğiniz yazı bu format için uygun olmayan karakterler içeriyor.";
+            }
+            warningText.setText(message);
             warningLayout.setVisibility(View.VISIBLE);
         }
     }
@@ -662,24 +877,25 @@ public class MainActivity extends QrCodeActivity {
         mediaPath = mediaPath.concat("/Generated QR Codes");
         File saveFolder = new File(mediaPath);
         if (!saveFolder.exists()) saveFolder.mkdirs();
-        mediaPath = mediaPath.concat("/").concat(fileName).concat(".png");
+        mediaPath = mediaPath.concat("/").concat(fileName).concat(List.of(".png", ".jpeg", ".webp", ".svg").get(fileFormat));
         File saveFile = new File(mediaPath);
 
-        boolean success = false;
-
         try {
-            generatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(saveFile));
-            success = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (success) {
+            FileOutputStream fos = new FileOutputStream(saveFile);
+            if (fileFormat == 3) {
+                fos.write(svgContent);
+                fos.close();
+            } else {
+                Bitmap.CompressFormat compressFormat =
+                        List.of(Bitmap.CompressFormat.PNG, Bitmap.CompressFormat.JPEG, Bitmap.CompressFormat.WEBP).get(fileFormat);
+                generatedBitmap.compress(compressFormat, 100, fos);
+            }
             generateHistory.addEntry(new HistoryEntry(generateEditText.getText().toString(), mediaPath, dateInMillis));
             spe.putString("generate", generateHistory.getJson()).commit();
             showMessage(getString(R.string.saved));
             saved = true;
-        } else {
+        } catch (IOException e) {
+            e.printStackTrace();
             showMessage(getString(R.string.could_not_save));
         }
     }

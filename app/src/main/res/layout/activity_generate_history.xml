@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?color6_2"
     android:orientation="vertical"
     tools:context=".GenerateHistoryActivity">
 
@@ -12,7 +13,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="?color6_2"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -49,6 +49,7 @@
             android:id="@+id/searchEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:ems="10"
             android:hint="@string/search"
@@ -93,7 +94,6 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?color6_2"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarStyle="insideOverlay"
         android:scrollbars="vertical">

@@ -6,13 +6,34 @@
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:src="@drawable/baseline_info_outline_24" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Barkodun etrafında ne kadar boşluk olacağını belirleyin." />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:padding="16dp"
-        android:text="6px"
+        android:text="5 px"
         android:textSize="16sp" />
 
     <SeekBar
@@ -20,9 +41,9 @@
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"
+        android:max="7"
         android:padding="16dp"
         android:paddingStart="40dp"
         android:paddingEnd="40dp"
-        android:progress="3" />
+        android:progress="4" />
 </LinearLayout>
