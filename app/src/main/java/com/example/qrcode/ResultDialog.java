@@ -6,81 +6,75 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class ResultDialog {
+public class ResultDialog extends BottomSheetDialog {
     private QrCodeActivity activity;
-    private AlertDialog dialog;
-    private AlertDialog.Builder builder;
-    private View view;
     private TextView resultText;
     private TextView dateText;
     private TextView formatText;
     private ImageView resultImage;
-    private ImageView copyButton;
-    private ImageView shareButton;
-    private ImageView regenerateButton;
-    private ImageView deleteButton;
+    private LinearLayout copyButton;
+    private LinearLayout shareButton;
+    private LinearLayout regenerateButton;
+    private LinearLayout deleteButton;
     private int indexInHistory;
     private String resultContent;
     private String resultPath;
     private boolean mode;
 
     ResultDialog(QrCodeActivity _activity, boolean _mode, DialogInterface.OnDismissListener onDismissListener) {
+        super(_activity, R.style.BottomSheetDialogTheme);
         activity = _activity;
         mode = _mode;
-        builder = new AlertDialog.Builder(_activity, R.style.Dialog);
-        builder.setOnDismissListener(onDismissListener);
 
-        view = activity.getLayoutInflater().inflate(R.layout.result_dialog_layout, null);
-        resultText = view.findViewById(R.id.resultText);
-        dateText = view.findViewById(R.id.date);
-        formatText = view.findViewById(R.id.format);
-        resultImage = view.findViewById(R.id.resultImage);
-        copyButton = view.findViewById(R.id.copyButton);
-        shareButton = view.findViewById(R.id.shareButton);
-        regenerateButton = view.findViewById(R.id.regenerateButton);
-        deleteButton = view.findViewById(R.id.deleteButton);
+        setOnDismissListener(onDismissListener);
+
+        setContentView(R.layout.result_dialog_layout);
+        resultText = findViewById(R.id.resultText);
+        dateText = findViewById(R.id.date);
+        formatText = findViewById(R.id.format);
+        resultImage = findViewById(R.id.resultImage);
+        copyButton = findViewById(R.id.copyButton);
+        shareButton = findViewById(R.id.shareButton);
+        regenerateButton = findViewById(R.id.regenerateButton);
+        deleteButton = findViewById(R.id.deleteButton);
 
         resultImage.setVisibility(mode ? View.GONE : View.VISIBLE);
         copyButton.setVisibility(mode ? View.VISIBLE : View.GONE);
         regenerateButton.setVisibility(mode ? View.VISIBLE : View.GONE);
         formatText.setVisibility(mode ? View.GONE : View.VISIBLE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            copyButton.setTooltipText(activity.getText(R.string.copy));
-            shareButton.setTooltipText(activity.getText(R.string.share));
-            regenerateButton.setTooltipText(activity.getText(R.string.regenerate));
-            deleteButton.setTooltipText(activity.getText(R.string.delete));
-        }
-
         copyButton.setOnClickListener(v -> activity.copyResult(resultContent));
         shareButton.setOnClickListener(v -> activity.shareResult(indexInHistory));
         regenerateButton.setOnClickListener(v -> {
-            dialog.dismiss();
+            dismiss();
             activity.regenerateResult(resultContent);
         });
         deleteButton.setOnClickListener(v -> {
-            dialog.dismiss();
+            dismiss();
             activity.deleteResult(indexInHistory);
         });
-        builder.setView(view);
-        dialog = builder.create();
+
+        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     public void showResult(HistoryEntry entry, int _indexInHistory) {
         resultContent = entry.content;
         resultText.setText(resultContent);
-        dateText.setText(entry.getVisibleDate("d MMM yyyy, HH.mm"));
+        dateText.setText(entry.getVisibleDate());
         if (!mode) {
             resultPath = entry.path;
             formatText.setText(resultPath.endsWith(".png") ? "PNG"
@@ -100,6 +94,6 @@ public class ResultDialog {
             else resultImage.setImageURI(Uri.parse(resultPath));
         }
         indexInHistory = _indexInHistory;
-        dialog.show();
+        show();
     }
 }

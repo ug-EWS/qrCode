@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">qrCode</string>
+    <string name="app_name" translatable="false">qrCode</string>
 
     <!--Main-->
     <string name="scan">Scan</string>
     <string name="generate">Generate</string>
+    <string name="gallery">Gallery</string>
     <string name="pick_from_gallery">PICK FROM GALLERY</string>
     <string name="scan_history">Scan history</string>
     <string name="generate_history">Generate history</string>
@@ -14,13 +15,43 @@
     <string name="colored_foreground">Colored foreground</string>
     <string name="colored_background">Colored background</string>
     <string name="hue">Hue:</string>
+    <string name="shade">Shade:</string>
     <string name="margin">Margin</string>
     <string name="format">Format</string>
     <string name="generate_info">The generated barcode will be displayed here</string>
-    <string name="generate_warning">Barcode generation failed</string>
+    <string name="generate_warning_not_suitable">Your text is not suitable for this format.</string>
+    <string name="generate_warning_too_long">Your text is too long for this format.</string>
+    <string name="generate_warning_inv_char">Your text contains characters that are not valid for this format.</string>
+    <string name="generate_warning">Could not generate barcode. Try changing text or settings.</string>
     <string name="save">Save</string>
     <string name="share">Share</string>
     <string name="or">or</string>
+    <string name="file_type">File type</string>
+    <string name="file_type_png">Bitmap (.png)</string>
+    <string name="file_type_jpg">Bitmap (.jpg)</string>
+    <string name="file_type_webp">Bitmap (.webp)</string>
+    <string name="file_type_svg">Vector (.svg)</string>
+    <string name="magn_factor">Magnification factor</string>
+    <string name="magn_factor_desc">Determine how many times larger the barcode will be than the original. Important only for bitmap types.</string>
+    <string name="bar_length">Bar length</string>
+    <string name="bar_length_desc">Determine length of the bars of the barcode.</string>
+    <string name="readable_text">Readable text</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
+    <string name="margin_desc">Determine how much space will be around the barcode.</string>
+    <string name="theme">Theme</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="auto">Auto</string>
+    <string name="my_projects">My projects</string>
+    <string name="complete_project">Complete project</string>
+    <string name="restart_project">Restart project</string>
+    <string name="cancel_project">Cancel project</string>
+    <string name="delete_project">Delete project</string>
+    <string name="continue_project">Continue project</string>
+    <string name="edit_project">Edit project</string>
+    <string name="projects_center">Projects Center</string>
+    <string name="no_projects">No projects have been created.</string>
 
     <!--Crop-->
     <string name="crop_image">Crop image</string>
@@ -37,17 +68,18 @@
     <string name="result_info">Search results will be listed here</string>
     <string name="result_not_found">No results found</string>
     <string name="more_options">More options</string>
-    <string name="search">Search</string>
+    <string name="search">Search…</string>
     <string name="items_selected">items selected</string>
 
     <!--Dialog-->
     <string name="copy">Copy</string>
     <string name="_share">Share</string>
     <string name="regenerate">Regenerate</string>
+    <string name="delete_prompt">Delete this item?</string>
     <string name="delete">Delete</string>
     <string name="result">Result</string>
     <string name="clear_history">Clear history</string>
-    <string name="number_delete_entries">entries will be deleted. Continue?</string>
+    <string name="number_delete_entries">%d entries will be deleted. Continue?</string>
     <string name="dialog_delete">Delete</string>
     <string name="dialog_no">No</string>
     <string name="preview">Preview</string>
@@ -62,6 +94,9 @@
     <string name="could_not_scan">Could not scan</string>
     <string name="grant_permission">Camera permission must be granted to scan barcodes</string>
     <string name="deleted">Deleted</string>
+    <string name="could_not_get_file">Could not get file</string>
+    <string name="could_not_scan_checksum">Could not read properly (ChecksumException).</string>
+    <string name="could_not_scan_format">Could not read properly (FormatException).</string>
 
     <!---->
 

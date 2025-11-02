@@ -1,5 +1,8 @@
 package com.example.qrcode;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,7 +11,39 @@ public class HistoryManager {
     private ArrayList<HistoryEntry> entries;
     private ArrayList<Integer> visibleEntries;
 
-    HistoryManager() {
+    HistoryManager(String jsonString) {
+        try {
+            fromJSONArray(new JSONArray(jsonString));
+        } catch (JSONException e) {
+            entries = new ArrayList<>();
+        }
+    }
+
+    private void fromJSONArray(JSONArray jsonArray) {
+        entries = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                entries.add(new HistoryEntry(jsonArray.getJSONObject(i)));
+            } catch (JSONException e) {
+                try {
+                    entries.add(new HistoryEntry(jsonArray.getString(i)));
+                } catch (JSONException f) {
+                    entries.add(new HistoryEntry("{}"));
+                }
+            }
+        }
+    }
+
+    private JSONArray toJSONArray() {
+        JSONArray jsonArray = new JSONArray();
+        for (HistoryEntry i : entries) {
+            jsonArray.put(i.toJSONObject());
+        }
+        return jsonArray;
+    }
+
+    public String toJsonString() {
+        return toJSONArray().toString();
     }
 
     public void addEntry(HistoryEntry entry) {
@@ -65,22 +100,12 @@ public class HistoryManager {
     }
 
     public void removeIfPathNotExist() {
-        for (int i = 0; i < entries.size(); i++) {
+        for (int i = entries.size() - 1; i >= 0; i--) {
             if (!new File(entries.get(i).path).exists()) removeEntryAt(i);
         }
     }
 
-    public String getJson() {
-        ArrayList<String> list = new ArrayList<>();
-        for (HistoryEntry i : entries) list.add(i.getJson());
-        return Json.valueOf(list);
-    }
-
-    public void fromJson(String json) {
-        entries = new ArrayList<>();
-        if (!json.isEmpty()) {
-            ArrayList<String> list = Json.toList(json);
-            for (String i : list) entries.add(new HistoryEntry(i));
-        }
+    public void sort() {
+        entries.sort(Comparator.comparing(entry -> entry.dateInMillis, Comparator.reverseOrder()));
     }
 }

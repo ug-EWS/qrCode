@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?color6_2"
+    android:background="@color/grey10"
     android:orientation="vertical"
     tools:context=".GenerateHistoryActivity">
 
@@ -23,8 +23,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_arrow_back_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_arrow_back_24" />
 
         <TextView
             android:id="@+id/title"
@@ -32,8 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/scan_history"
-            android:textColor="?color0"
-            android:textSize="17sp" />
+            android:textColor="@color/grey6"
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/selectAllButton"
@@ -43,8 +42,7 @@
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/baseline_select_all_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_select_all_24" />
 
         <ImageView
             android:id="@+id/deleteButton"
@@ -54,8 +52,7 @@
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/baseline_delete_forever_24_white"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_delete_forever_24" />
 
         <ImageView
             android:id="@+id/doneButton"
@@ -64,8 +61,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_search_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_search_24" />
 
         <EditText
             android:id="@+id/searchEditText"
@@ -73,9 +69,12 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_weight="1"
+            android:background="@drawable/edit_text_bg_mini"
             android:ems="10"
             android:hint="@string/search"
             android:inputType="text"
+            android:padding="8dp"
+            android:textSize="20sp"
             android:visibility="gone" />
 
     </LinearLayout>
@@ -86,7 +85,7 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal|center_vertical"
         android:text="Sonuç"
-        android:textColor="?color3"
+        android:textColor="@color/grey4"
         android:textSize="20sp"
         android:visibility="gone" />
 

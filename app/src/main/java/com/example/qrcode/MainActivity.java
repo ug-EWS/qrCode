@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ImageDecoder;
 import android.graphics.Picture;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,18 +19,12 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.TransitionManager;
-import android.view.Menu;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -38,9 +33,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -49,7 +42,6 @@ import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
-import com.google.android.material.tabs.TabLayout;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.FormatException;
@@ -70,8 +62,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import uk.org.okapibarcode.backend.HumanReadableLocation;
 import uk.org.okapibarcode.backend.OkapiInputException;
@@ -80,10 +70,12 @@ import uk.org.okapibarcode.output.SvgRenderer;
 
 public class MainActivity extends QrCodeActivity {
     private ImageView optionsButton;
-    private TabLayout tabLayout;
+    private LinearLayout bottomNavigation;
+    private LinearLayout scanButton;
+    private LinearLayout galleryButton;
+    private LinearLayout generateButton;
     private LinearLayout scanScreen;
     private LinearLayout generateScreen;
-    private CardView scanCard;
     private CodeScannerView scannerView;
     private EditText generateEditText;
     private LinearLayout colorButton;
@@ -112,31 +104,28 @@ public class MainActivity extends QrCodeActivity {
     private LinearLayout bottomLayout;
     private LinearLayout saveButton;
     private LinearLayout shareButton;
-    private TextView galleryButton;
 
     private CodeScanner codeScanner;
     private ResultDialog resultDialog;
+    private SaveDialog saveDialog;
 
     private QRCodeColor qrCodeColor;
+    private int currentTab;
     private int margin;
     private int format;
-    private int formatSelection;
     private int zoom;
     private int barLength;
     private int size;
     private int fileFormat;
-    private int fileFormatSelection;
     private boolean readable;
-    private boolean readableSelection;
     private String bitmapSize;
     private SupportedBarcodeFormats supportedBarcodeFormats;
     private HistoryManager scanHistory;
-    private HistoryManager generateHistory;
+    private HistoryEntry generatedEntry;
 
     private boolean saved;
     private boolean expanded;
     private int theme;
-    private Timer timer;
 
     private SharedPreferences sp;
     private SharedPreferences.Editor spe;
@@ -148,6 +137,7 @@ public class MainActivity extends QrCodeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+
         setContentView(R.layout.activity_main);
         initializeUi();
 
@@ -172,6 +162,8 @@ public class MainActivity extends QrCodeActivity {
         expanded = false;
 
         theme = sp.getInt("theme", 0);
+
+        saveDialog = new SaveDialog(this, this::saveGenerated);
     }
 
     @Override
@@ -182,6 +174,7 @@ public class MainActivity extends QrCodeActivity {
                 showMessage(getString(R.string.grant_permission));
                 scannerView.setVisibility(View.GONE);
             } else {
+                scannerView.setVisibility(View.VISIBLE);
                 codeScanner.startPreview();
             }
         }
@@ -203,26 +196,23 @@ public class MainActivity extends QrCodeActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (tabLayout.getSelectedTabPosition() == 0) restartCameraPreview();
+        if (currentTab == 0) restartCameraPreview();
 
-        scanHistory = new HistoryManager();
-        scanHistory.fromJson(sp.getString("scan", ""));
+        scanHistory = new HistoryManager(sp.getString("scan", ""));
         resultDialog = new ResultDialog(this, true, dialog -> runOnUiThread(() -> codeScanner.startPreview()));
-
-        generateHistory = new HistoryManager();
-        generateHistory.fromJson(sp.getString("generate", ""));
+        saveDialog.refreshData();
     }
 
     @Override
     protected void onPause() {
-        if (tabLayout.getSelectedTabPosition() == 0) codeScanner.releaseResources();
+        if (currentTab == 0) codeScanner.releaseResources();
         super.onPause();
     }
 
     @Override
     public void regenerateResult(String text) {
         super.regenerateResult(text);
-        tabLayout.selectTab(tabLayout.getTabAt(1));
+        setCurrentTab(2);
         generateEditText.setText(text);
         generateCode();
     }
@@ -249,10 +239,12 @@ public class MainActivity extends QrCodeActivity {
     @SuppressLint("ClickableViewAccessibility")
     private void initializeUi() {
         optionsButton = findViewById(R.id.doneButton);
-        tabLayout = findViewById(R.id.tabLayout);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+        scanButton = findViewById(R.id.myPlaylistsButton);
+        galleryButton = findViewById(R.id.topStationsButton);
+        generateButton = findViewById(R.id.countriesButton);
         scanScreen = findViewById(R.id.scanScreen);
         generateScreen = findViewById(R.id.generateScreen);
-        scanCard = findViewById(R.id.scanCard);
         scannerView = findViewById(R.id.scannerView);
         generateEditText = findViewById(R.id.generateEditText);
         colorButton = findViewById(R.id.colorButton);
@@ -281,24 +273,7 @@ public class MainActivity extends QrCodeActivity {
         bottomLayout = findViewById(R.id.bottomLayout);
         saveButton = findViewById(R.id.saveButton);
         shareButton = findViewById(R.id.shareButton);
-        optionsButton.setOnClickListener(v -> getOptionsPopupMenu().show());
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                int index = tab.getPosition();
-                setCurrentTab(index);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
+        optionsButton.setOnClickListener(v -> getOptionsPopupMenu().showMenu());
         ScaleGestureDetector scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.OnScaleGestureListener() {
             @Override
             public boolean onScale(@NonNull ScaleGestureDetector detector) {
@@ -330,17 +305,7 @@ public class MainActivity extends QrCodeActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (timer != null) timer.cancel();
-                timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(() -> {
-                            generateCode();
-                            timer = null;
-                        });
-                    }
-                    }, 500);
+                generateCode();
             }
 
             @Override
@@ -357,27 +322,20 @@ public class MainActivity extends QrCodeActivity {
         fileButton.setOnClickListener(v -> showFileDialog());
         barLengthButton.setOnClickListener(v -> showBarLengthDialog());
         expandButton.setOnClickListener(v -> setExpanded(!expanded));
-        saveButton.setOnClickListener(v -> saveGenerated());
+        saveButton.setOnClickListener(v -> saveDialog.show());
         shareButton.setOnClickListener(v -> shareGenerated());
 
-        galleryButton = findViewById(R.id.galleryButton);
+        scanButton.setOnClickListener(v -> setCurrentTab(0));
+
         galleryButton.setOnClickListener(v ->
             uriResultLauncher.launch(new PickVisualMediaRequest.Builder()
                     .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                     .build()));
 
-        resultImage.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-            View layout = getLayoutInflater().inflate(R.layout.dialog_preview, null);
-            ImageView imageView = layout.findViewById(R.id.image);
-            imageView.setImageBitmap(generatedBitmap);
-            TextView textView = layout.findViewById(R.id.text);
-            textView.setText(bitmapSize);
-            builder.setTitle(R.string.preview);
-            builder.setView(layout);
-            builder.setPositiveButton(R.string.dialog_ok, null);
-            builder.create().show();
-        });
+        generateButton.setOnClickListener(v -> setCurrentTab(2));
+
+        resultImage.setOnClickListener(v ->
+                new PreviewDialog(this, generatedBitmap, bitmapSize).show());
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -390,16 +348,19 @@ public class MainActivity extends QrCodeActivity {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets insets1 = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets insets2 = insets.getInsets(WindowInsetsCompat.Type.ime());
+            Insets insets3 = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
             boolean imeShowing = insets2.bottom > insets1.bottom;
-            v.setPadding(insets1.left, insets1.top, insets1.right, Math.max(insets2.bottom, insets1.bottom));
+            v.setPadding(Math.max(insets1.left, insets3.left), insets1.top, Math.max(insets1.right, insets3.right), Math.max(insets1.bottom, insets2.bottom));
             optionsLayout.setVisibility(imeShowing ? View.GONE : View.VISIBLE);
             bottomLayout.setVisibility(imeShowing ? View.GONE : View.VISIBLE);
+            bottomNavigation.setVisibility(imeShowing ? View.GONE : View.VISIBLE);
             return insets;
         });
     }
 
     private void setAppTheme(int _theme) {
         theme = _theme;
+        spe.putInt("theme", theme).commit();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             ((UiModeManager) getSystemService(UI_MODE_SERVICE)).setApplicationNightMode(theme);
         else AppCompatDelegate.setDefaultNightMode(theme == 0 ? AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM : theme);
@@ -425,11 +386,11 @@ public class MainActivity extends QrCodeActivity {
                             if (soft != null) scanImage(soft);
                             else showMessage("null");
                         } catch (IOException e) {
-                            showMessage("Dosyaya erişilemiyor");
+                            showMessage(R.string.could_not_get_file);
                             e.printStackTrace();
                         }
-                    } else showMessage("Dosyaya erişilemiyor");
-                } else showMessage(getString(R.string.cancelled));
+                    } else showMessage(R.string.could_not_get_file);
+                } else showMessage(R.string.cancelled);
             }
     );
 
@@ -454,11 +415,11 @@ public class MainActivity extends QrCodeActivity {
             Result result = reader.decode(binaryBitmap);
             newScanEntry(result.getText());
         } catch (NotFoundException e) {
-            showMessage(getString(R.string.barcode_not_found));
+            showMessage(R.string.barcode_not_found);
         } catch (ChecksumException e) {
-            showMessage("Barkod düzgün okunamadı (ChecksumException).");
+            showMessage(R.string.could_not_scan_checksum);
         } catch (FormatException e) {
-            showMessage("Barkod düzgün okunamadı (FormatException).");
+            showMessage(R.string.could_not_scan_format);
         }
     }
 
@@ -466,323 +427,156 @@ public class MainActivity extends QrCodeActivity {
         HistoryEntry entry = new HistoryEntry(content, "", Calendar.getInstance().getTimeInMillis());
         scanHistory.addEntry(entry);
         resultDialog.showResult(entry, 0);
-        spe.putString("scan", scanHistory.getJson()).commit();
+        spe.putString("scan", scanHistory.toJsonString()).commit();
     }
 
-    private PopupMenu getOptionsPopupMenu() {
-        PopupMenu popupMenu = new PopupMenu(this, optionsButton);
-        popupMenu.inflate(R.menu.options);
-        Menu menu = popupMenu.getMenu();
-        if (theme == 0) menu.findItem(R.id.auto).setChecked(true);
-        if (theme == 1) menu.findItem(R.id.light).setChecked(true);
-        if (theme == 2) menu.findItem(R.id.dark).setChecked(true);
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.scanned) {
-                Intent intent = new Intent();
-                intent.setClass(getApplicationContext(), ScanHistoryActivity.class);
-                startActivity(intent);
-                return true;
-            }
-            if (id == R.id.generated) {
-                Intent intent = new Intent();
-                intent.setClass(getApplicationContext(), GenerateHistoryActivity.class);
-                startActivity(intent);
-                return true;
-            }
-            if (id == R.id.light) {
-                setAppTheme(1);
-                spe.putInt("theme", theme).commit();
-                return true;
-            }
-            if (id == R.id.dark) {
-                setAppTheme(2);
-                spe.putInt("theme", theme).commit();
-                return true;
-            }
-            if (id == R.id.auto) {
-                setAppTheme(0);
-                spe.putInt("theme", theme).commit();
-                return true;
-            }
-            return false;
-        });
-        return popupMenu;
+    private BottomSheetMenu getOptionsPopupMenu() {
+        BottomSheetMenu menu = new BottomSheetMenu(this);
+        menu.addMenuItem(R.drawable.baseline_qr_code_scanner_24, R.string.scan_history, () ->
+                startActivity(new Intent(getApplicationContext(), ScanHistoryActivity.class)));
+        menu.addMenuItem(R.drawable.baseline_auto_awesome_24, R.string.generate_history, () ->
+                startActivity(new Intent(getApplicationContext(), GenerateHistoryActivity.class)));
+        menu.addMenuItem(R.drawable.baseline_build_24, R.string.projects_center, () ->
+                startActivity(new Intent(getApplicationContext(), ProjectsActivity.class)));
+        menu.addMenuItem(R.drawable.baseline_color_lens_24, R.string.theme, () -> {
+            BottomSheetMenu themeMenu = new BottomSheetMenu(this, theme == 0 ? 2 : theme - 1);
+            themeMenu.addMenuItem(R.drawable.baseline_color_lens_24, R.string.light, () ->
+                setAppTheme(1));
+            themeMenu.addMenuItem(R.drawable.baseline_color_lens_24, R.string.dark, () ->
+                setAppTheme(2));
+            themeMenu.addMenuItem(R.drawable.baseline_color_lens_24, R.string.auto, () ->
+                setAppTheme(0));
+            themeMenu.showMenu();
+        }, getString(List.of(R.string.auto, R.string.light, R.string.dark).get(theme)));
+        return menu;
     }
 
-    private void setCurrentTab(int index) {
-        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(generateEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        scanScreen.setVisibility(index == 0 ? View.VISIBLE : View.GONE);
-        generateScreen.setVisibility(index == 1 ? View.VISIBLE : View.GONE);
-        if (index == 0) restartCameraPreview(); else codeScanner.releaseResources();
+    private void setCurrentTab(int tabIndex) {
+        currentTab = tabIndex;
+        for (int i = 0; i < 3; i++) {
+            LinearLayout button = List.of(scanButton, galleryButton, generateButton).get(i);
+            ImageView icon = findViewById(List.of(R.id.myPlaylistsIcon, R.id.topStationsIcon, R.id.countriesIcon).get(i));
+            TextView text = findViewById(List.of(R.id.myPlaylistsText, R.id.topStationsText, R.id.countriesText).get(i));
+            button.setScaleX(i == currentTab ? 1 : 0.9F);
+            button.setScaleY(i == currentTab ? 1 : 0.9F);
+            icon.setBackgroundResource(i == currentTab ? R.drawable.bottom_icon : R.drawable.ripple_bottom);
+            icon.setImageIcon(Icon.createWithResource(this,
+                            List.of(R.drawable.baseline_qr_code_scanner_24, R.drawable.baseline_photo_library_24, R.drawable.baseline_auto_awesome_24).get(i))
+                    .setTint(getColor(i == currentTab ? R.color.purple_700 : R.color.grey9)));
+            text.setTextColor(getColor(i == currentTab ? R.color.purple_700 : R.color.grey9));
+
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                    .hideSoftInputFromWindow(generateEditText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            scanScreen.setVisibility(currentTab == 0 ? View.VISIBLE : View.GONE);
+            generateScreen.setVisibility(currentTab == 2 ? View.VISIBLE : View.GONE);
+            if (currentTab == 0) restartCameraPreview();
+            else codeScanner.releaseResources();
+        }
     }
 
     private void showColorDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_color, null);
-        RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroup);
-        RadioButton blackWhite = dialogView.findViewById(R.id.blackWhite);
-        RadioButton foreground = dialogView.findViewById(R.id.foreground);
-        RadioButton background = dialogView.findViewById(R.id.background);
-        LinearLayout hueLayout = dialogView.findViewById(R.id.hueLayout);
-        TextView hue = dialogView.findViewById(R.id.hue);
-        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
-        LinearLayout shadeLayout = dialogView.findViewById(R.id.shadeLayout);
-        TextView shade = dialogView.findViewById(R.id.shade);
-        SeekBar shadeSeekBar = dialogView.findViewById(R.id.shadeSeekBar);
-        ImageView preview = dialogView.findViewById(R.id.preview);
-
-        QRCodeColor preCol = new QRCodeColor();
-
-        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.blackWhite) {
-                preCol.setColorMode(QRCodeColor.COLOR_BLACK_WHITE);
-                hueLayout.setVisibility(View.GONE);
-                shadeLayout.setVisibility(View.GONE);
-            }
-            if (checkedId == R.id.foreground) {
-                preCol.setColorMode(QRCodeColor.COLOR_FOREGROUND);
-                hueLayout.setVisibility(View.VISIBLE);
-                shadeLayout.setVisibility(View.VISIBLE);
-            }
-            if (checkedId == R.id.background) {
-                preCol.setColorMode(QRCodeColor.COLOR_BACKGROUND);
-                hueLayout.setVisibility(View.VISIBLE);
-                shadeLayout.setVisibility(View.VISIBLE);
-            }
-            preview.setBackgroundColor(preCol.backgroundColorInt);
-            preview.setColorFilter(preCol.foregroundColorInt);
-        });
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                preCol.setHue(progress);
-                hue.setText(String.valueOf(progress));
-                preview.setBackgroundColor(preCol.backgroundColorInt);
-                preview.setColorFilter(preCol.foregroundColorInt);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        shadeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                preCol.setShade(progress);
-                shade.setText(String.valueOf(progress));
-                preview.setBackgroundColor(preCol.backgroundColorInt);
-                preview.setColorFilter(preCol.foregroundColorInt);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        radioGroup.check(
-                qrCodeColor.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ? R.id.blackWhite :
-                        qrCodeColor.getColorMode() == QRCodeColor.COLOR_FOREGROUND ? R.id.foreground :
-                                R.id.background);
-
-        seekBar.setProgress(qrCodeColor.getHue());
-        hueLayout.setVisibility(preCol.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ? View.GONE : View.VISIBLE);
-        shadeSeekBar.setProgress(qrCodeColor.getShade());
-        shadeLayout.setVisibility(preCol.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ? View.GONE : View.VISIBLE);
-
-        builder.setTitle(R.string.color);
-        builder.setIcon(R.drawable.baseline_color_lens_24);
-        builder.setView(dialogView);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            if (blackWhite.isChecked()) {
-                qrCodeColor.setColorMode(QRCodeColor.COLOR_BLACK_WHITE);
-                colorText.setText(R.string.black_white);
-            }
-            if (foreground.isChecked()) {
-                qrCodeColor.setColorMode(QRCodeColor.COLOR_FOREGROUND);
-                colorText.setText(R.string.colored_foreground);
-            }
-            if (background.isChecked()) {
-                qrCodeColor.setColorMode(QRCodeColor.COLOR_BACKGROUND);
-                colorText.setText(R.string.colored_background);
-            }
-            qrCodeColor.setHue(seekBar.getProgress());
-            qrCodeColor.setShade(shadeSeekBar.getProgress());
+        new ColorDialog(this, qrCodeColor, _qrCodeColor -> {
+            qrCodeColor.setColorMode(_qrCodeColor.getColorMode());
+            qrCodeColor.setHue(_qrCodeColor.getHue());
+            qrCodeColor.setShade(_qrCodeColor.getShade());
+            colorText.setText(qrCodeColor.getColorMode() == QRCodeColor.COLOR_BLACK_WHITE ?
+                    R.string.black_white :
+                    qrCodeColor.getColorMode() == QRCodeColor.COLOR_FOREGROUND ?
+                            R.string.colored_foreground : R.string.colored_background);
             if (!generateEditText.getText().toString().isEmpty()) generateCode();
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
-
-        });
-        builder.create().show();
+        }).show();
     }
 
     private void showMarginDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_margin, null);
-        TextView text = dialogView.findViewById(R.id.text);
-        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                text.setText(String.valueOf(progress + 1).concat(" px"));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        seekBar.setProgress(margin - 1);
-
-        builder.setTitle(R.string.margin);
-        builder.setIcon(R.drawable.baseline_margin_24);
-        builder.setView(dialogView);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            margin = seekBar.getProgress() + 1;
-            marginText.setText(text.getText());
-            if (!generateEditText.getText().toString().isEmpty()) generateCode();
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, (dialog, which) -> {
-
-        });
-        builder.create().show();
+        new SeekBarDialog(
+                this,
+                R.string.margin,
+                0,
+                R.string.margin_desc,
+                margin,
+                7,
+                value -> value - 1,
+                progress -> progress + 1,
+                true,
+                value -> {
+                    margin = value;
+                    marginText.setText(String.format("%d px", margin));
+                    if (!generateEditText.getText().toString().isEmpty()) generateCode();
+                }).show();
     }
 
     private void showFormatDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-        builder.setTitle(R.string.format);
-        builder.setIcon(R.drawable.baseline_dataset_24);
-        builder.setSingleChoiceItems(supportedBarcodeFormats.getFormats().toArray(new String[0]), format, (dialog, which) -> formatSelection = which);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            format = formatSelection;
-            formatText.setText(supportedBarcodeFormats.getFormats().get(format));
-            if (!generateEditText.getText().toString().isEmpty()) generateCode();
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, null);
-        builder.create().show();
+        new RadioButtonDialog(this, R.string.format, 0, "", supportedBarcodeFormats.getFormats(), format,
+                selection -> {
+                    format = selection;
+                    formatText.setText(supportedBarcodeFormats.getFormatName(format));
+                    if (!generateEditText.getText().toString().isEmpty()) generateCode();
+                }).show();
     }
 
     private void showBarLengthDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_module_width, null);
-        TextView text = dialogView.findViewById(R.id.text);
-        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                text.setText(String.valueOf((progress + 1) * 10));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        seekBar.setProgress((barLength / 10) - 1);
-        builder.setTitle("Çizgi uzunluğu");
-        builder.setIcon(R.drawable.baseline_height_24);
-        builder.setView(dialogView);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            barLength = (seekBar.getProgress() + 1) * 10;
-            barLengthText.setText(text.getText());
-            if (!generateEditText.getText().toString().isEmpty()) generateCode();
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, null);
-        builder.create().show();
+        new SeekBarDialog(
+                this,
+                R.string.bar_length,
+                0,
+                R.string.bar_length_desc,
+                barLength,
+                9,
+                value -> (value / 10) - 1,
+                progress -> (progress + 1) * 10,
+                false,
+                value -> {
+                    barLength = value;
+                    barLengthText.setText(String.valueOf(barLength));
+                    if (!generateEditText.getText().toString().isEmpty()) generateCode();
+                }).show();
     }
 
     private void showSizeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_size, null);
-        TextView text = dialogView.findViewById(R.id.text);
-        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                text.setText(String.valueOf(progress + 1));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        seekBar.setProgress(size - 1);
-        builder.setTitle("Büyütme katsayısı");
-        builder.setIcon(R.drawable.baseline_zoom_out_map_24);
-        builder.setView(dialogView);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            size = seekBar.getProgress() + 1;
-            sizeText.setText(text.getText());
-            if (!generateEditText.getText().toString().isEmpty()) generateCode();
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, null);
-        builder.create().show();
+        new SeekBarDialog(
+                this,
+                R.string.magn_factor,
+                0,
+                R.string.magn_factor_desc,
+                size,
+                24,
+                value -> value - 1,
+                progress -> progress + 1,
+                false,
+                value -> {
+                    size = value;
+                    sizeText.setText(String.valueOf(size));
+                    if (!generateEditText.getText().toString().isEmpty()) generateCode();
+                }
+        ).show();
     }
 
-
-
     private void showFileDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-        String[] options = {"Bit eşlem (.png)", "Bit eşlem (.jpeg)", "Bit eşlem (.webp)", "Vektör (.svg)"};
-        builder.setTitle("Dosya türü");
-        builder.setIcon(R.drawable.baseline_photo_library_24);
-        builder.setSingleChoiceItems(options, fileFormat, (dialog, which) -> fileFormatSelection = which);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            fileFormat = fileFormatSelection;
-            fileText.setText(options[fileFormat]);
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, null);
-        builder.create().show();
+        ArrayList<String> options =
+                new ArrayList<>(List.of(
+                        getString(R.string.file_type_png),
+                        getString(R.string.file_type_jpg),
+                        getString(R.string.file_type_webp),
+                        getString(R.string.file_type_svg)));
+        new RadioButtonDialog(this, R.string.file_type, 0, "", options, fileFormat,
+                selection -> {
+                    fileFormat = selection;
+                    fileText.setText(options.get(fileFormat));
+                }).show();
     }
 
     private void showReadableDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Dialog);
-        String[] options = {"Göster", "Gizle"};
-        builder.setTitle("Barkod yazısı");
-        builder.setIcon(R.drawable.baseline_text_fields_24);
-        builder.setSingleChoiceItems(options, readable ? 0 : 1, (dialog, which) -> readableSelection = which == 0);
-        builder.setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
-            readable = readableSelection;
-            readableText.setText(options[readable ? 0 : 1]);
-            if (!generateEditText.getText().toString().isEmpty()) generateCode();
-        });
-        builder.setNegativeButton(R.string.dialog_cancel, null);
-        builder.create().show();
+        ArrayList<String> options =
+                new ArrayList<>(List.of(
+                   getString(R.string.show),
+                   getString(R.string.hide)
+                ));
+        new RadioButtonDialog(this, R.string.readable_text, 0, "", options, readable ? 0 : 1,
+                selection -> {
+                    readable = selection == 0;
+                    readableText.setText(options.get(selection));
+                    if (!generateEditText.getText().toString().isEmpty()) generateCode();
+                }).show();
     }
 
     private void setExpanded(boolean _expanded) {
@@ -820,7 +614,7 @@ public class MainActivity extends QrCodeActivity {
         symbol.setQuietZoneVertical(margin);
         symbol.setHumanReadableLocation(readable && hasReadable ? HumanReadableLocation.BOTTOM : HumanReadableLocation.NONE);
         symbol.setFontName("Monospace");
-        symbol.setFontSize(8);
+        symbol.setFontSize(11);
         if (symbol.supportsEci() && symbol.getEciMode() != 4) symbol.setEciMode(26);
         try {
             symbol.setContent(text);
@@ -831,7 +625,6 @@ public class MainActivity extends QrCodeActivity {
                 svgContent = stream.toByteArray();
                 String content = new String(svgContent, StandardCharsets.UTF_8);
                 SVG svg = SVG.getFromString(content);
-                svg.renderToCanvas(new Canvas());
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     generatedBitmap = Bitmap.createBitmap(svg.renderToPicture());
@@ -855,13 +648,13 @@ public class MainActivity extends QrCodeActivity {
             }
         } catch (OkapiInputException e) {
             e.printStackTrace();
-            String message = "Girdiğiniz yazı bu format\n için uygun değil";
+            int message = R.string.generate_warning_not_suitable;
             String eMessage = e.getMessage();
             if (eMessage != null) {
                 if (eMessage.contains("too long"))
-                    message = "Girdiğiniz yazı bu format için çok uzun.";
-                if (eMessage.contains("invalid") || eMessage.contains("Invalid"))
-                    message = "Girdiğiniz yazı bu format için uygun olmayan karakterler içeriyor.";
+                    message = R.string.generate_warning_too_long;
+                if (eMessage.contains("nvalid")) // "I"nvalid or "i"nvalid
+                    message = R.string.generate_warning_inv_char;
             }
             warningText.setText(message);
             warningLayout.setVisibility(View.VISIBLE);
@@ -890,19 +683,19 @@ public class MainActivity extends QrCodeActivity {
                         List.of(Bitmap.CompressFormat.PNG, Bitmap.CompressFormat.JPEG, Bitmap.CompressFormat.WEBP).get(fileFormat);
                 generatedBitmap.compress(compressFormat, 100, fos);
             }
-            generateHistory.addEntry(new HistoryEntry(generateEditText.getText().toString(), mediaPath, dateInMillis));
-            spe.putString("generate", generateHistory.getJson()).commit();
-            showMessage(getString(R.string.saved));
             saved = true;
+            showMessage(R.string.saved);
+            generatedEntry = new HistoryEntry(generateEditText.getText().toString(), mediaPath, dateInMillis);
+            saveDialog.save(generatedEntry);
         } catch (IOException e) {
             e.printStackTrace();
             showMessage(getString(R.string.could_not_save));
+            saved = false;
         }
     }
 
     private void shareGenerated() {
-        if (!saved) saveGenerated();
-        HistoryEntry entry = generateHistory.getEntryAt(0);
-        shareResult(entry.content, entry.path);
+        if (saved) shareResult(generatedEntry.content, generatedEntry.path);
+        else saveDialog.show();
     }
 }

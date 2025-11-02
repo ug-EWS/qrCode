@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Main-->
+    <string name="scan">Scannen</string>
+    <string name="generate">Generieren</string>
+    <string name="gallery">Galerie</string>
+    <string name="pick_from_gallery">AUS GALERIE AUSWÄHLEN</string>
+    <string name="scan_history">Scanverlauf</string>
+    <string name="generate_history">Generierungsverlauf</string>
+    <string name="sound_feedback">Ton-Feedback</string>
+    <string name="type_something">Geben Sie etwas ein…</string>
+    <string name="color">Farbe</string>
+    <string name="black_white">Schwarz und Weiß</string>
+    <string name="colored_foreground">Farbiger Vordergrund</string>
+    <string name="colored_background">Farbiger Hintergrund</string>
+    <string name="hue">Farbe:</string>
+    <string name="shade">Farbton:</string>
+    <string name="margin">Rand</string>
+    <string name="format">Format</string>
+    <string name="generate_info">Der generierte Barcode wird hier angezeigt.</string>
+    <string name="generate_warning_not_suitable">Ihr Text ist für dieses Format nicht geeignet.</string>
+    <string name="generate_warning_too_long">Ihr Text ist für dieses Format zu lang.</string>
+    <string name="generate_warning_inv_char">Ihr Text enthält Zeichen, die für dieses Format nicht gültig sind.</string>
+    <string name="generate_warning">Barcode konnte nicht generiert werden. Versuchen Sie, Text oder Einstellungen zu ändern.</string>
+    <string name="save">Speichern</string>
+    <string name="share">Teilen</string>
+    <string name="or">oder</string>
+    <string name="file_type">Dateityp</string>
+    <string name="file_type_png">Bitmap (.png)</string>
+    <string name="file_type_jpg">Bitmap (.jpg)</string>
+    <string name="file_type_webp">Bitmap (.webp)</string>
+    <string name="file_type_svg">Vektor (.svg)</string>
+    <string name="magn_factor">Vergrößerungsfaktor</string>
+    <string name="magn_factor_desc">Bestimmen Sie, um wie viel Mal der Barcode größer als das Original sein wird. Wichtig nur für Bitmap-Typen.</string>
+    <string name="bar_length">Strichlänge</string>
+    <string name="bar_length_desc">Bestimmen Sie die Länge der Striche des Barcodes.</string>
+    <string name="readable_text">Lesbarer Text</string>
+    <string name="show">Zeigen</string>
+    <string name="hide">Verstecken</string>
+    <string name="margin_desc">Bestimmen Sie, wie viel Platz um den Barcode herum sein soll.</string>
+    <string name="theme">Thema</string>
+    <string name="light">Licht</string>
+    <string name="dark">Dunkel</string>
+    <string name="auto">Automatisch</string>
+    <string name="my_projects">My projects</string>
+    <string name="complete_project">Complete project</string>
+    <string name="restart_project">Restart project</string>
+    <string name="cancel_project">Cancel project</string>
+    <string name="delete_project">Delete project</string>
+    <string name="continue_project">Continue project</string>
+    <string name="edit_project">Edit project</string>
+    <string name="projects_center">Projects Center</string>
+    <string name="no_projects">No projects have been created.</string>
+
+    <!--Crop-->
+    <string name="crop_image">Bild zuschneiden</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="flip_horizontally">Horizontal spiegeln</string>
+    <string name="rotate_ccw">Gegen den Uhrzeigersinn drehen</string>
+    <string name="rotate_cw">Im Uhrzeigersinn drehen</string>
+    <string name="scan_this">Dieses Bild scannen</string>
+
+    <!--History-->
+    <string name="back">Zurück</string>
+    <string name="select_all">Alle auswählen</string>
+    <string name="delete_selected">Ausgewählte Einträge löschen</string>
+    <string name="result_info">Suchergebnisse werden hier aufgelistet</string>
+    <string name="result_not_found">Keine Ergebnisse gefunden</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="search">Suchen Sie…</string>
+    <string name="items_selected">Elemente ausgewählt</string>
+
+    <!--Dialog-->
+    <string name="copy">Kopieren</string>
+    <string name="_share">Teilen</string>
+    <string name="regenerate">Regenerieren</string>
+    <string name="delete_prompt">Delete this item?</string>
+    <string name="delete">Löschen</string>
+    <string name="result">Ergebnis</string>
+    <string name="clear_history">Verlauf löschen</string>
+    <string name="number_delete_entries">%d Einträge werden gelöscht. Fortfahren?</string>
+    <string name="dialog_delete">Löschen</string>
+    <string name="dialog_no">Nein</string>
+    <string name="preview">Vorschau</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Abbrechen</string>
+
+    <!--Toast-->
+    <string name="saved">Gespeichert.</string>
+    <string name="could_not_save">Konnte nicht speichern</string>
+    <string name="cancelled">Abgesagt</string>
+    <string name="barcode_not_found">Dieses Bild enthält keine Barcodes</string>
+    <string name="could_not_scan">Konnte nicht scannen.</string>
+    <string name="grant_permission">Zum Scannen von Barcodes muss die Kameraberechtigung erteilt werden.</string>
+    <string name="deleted">Gelöscht.</string>
+    <string name="could_not_get_file">Datei konnte nicht abgerufen werden</string>
+    <string name="could_not_scan_checksum">Konnte nicht richtig lesen (ChecksumException).</string>
+    <string name="could_not_scan_format">Konnte nicht richtig lesen (FormatException).</string>
+</resources>

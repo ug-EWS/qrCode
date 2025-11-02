@@ -5,26 +5,26 @@
     <item
         android:id="@+id/scanned"
         android:icon="@drawable/baseline_qr_code_scanner_24_black"
-        android:title="Tarananlar" />
+        android:title="@string/scan_history" />
     <item
         android:id="@+id/generated"
-        android:title="Oluşturulanlar" ></item>
+        android:title="@string/generate_history"></item>
     <item
         android:id="@+id/theme"
         android:checkable="false"
-        android:title="Tema"
-        app:showAsAction="never" >
-        <menu >
+        android:title="@string/theme"
+        app:showAsAction="never">
+        <menu>
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/light"
-                    android:title="Açık" />
+                    android:title="@string/light" />
                 <item
                     android:id="@+id/dark"
-                    android:title="Koyu" />
+                    android:title="@string/dark" />
                 <item
                     android:id="@+id/auto"
-                    android:title="Otomatik" />
+                    android:title="@string/auto" />
             </group>
         </menu>
     </item>

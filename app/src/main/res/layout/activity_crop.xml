@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?color6_2"
+    android:background="@color/grey10"
     android:orientation="vertical"
     tools:context=".CropActivity">
 
@@ -13,7 +13,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="?color6_2"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -24,8 +23,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_arrow_back_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_arrow_back_24" />
 
         <TextView
             android:id="@+id/title"
@@ -33,8 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/crop_image"
-            android:textColor="?color0"
-            android:textSize="17sp" />
+            android:textColor="@color/grey6"
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/flipButton"
@@ -43,8 +41,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_swap_horiz_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_swap_horiz_24" />
 
         <ImageView
             android:id="@+id/leftButton"
@@ -53,8 +50,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_rotate_left_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_rotate_left_24" />
 
         <ImageView
             android:id="@+id/rightButton"
@@ -63,8 +59,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_rotate_right_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_rotate_right_24" />
 
         <ImageView
             android:id="@+id/doneButton"
@@ -73,15 +68,14 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_purple"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_done_24"
-            app:tint="?color0" />
+            app:srcCompat="@drawable/baseline_done_24" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#9e9e9e"
+        android:background="@color/grey2"
         android:orientation="horizontal">
 
         <com.canhub.cropper.CropImageView
@@ -89,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="16dp"
-            android:background="#9e9e9e"
+            android:background="@color/grey2"
             app:cropBackgroundColor="#80404040"
             app:cropBorderCornerColor="@color/teal_200"
             app:cropBorderLineColor="@color/teal_200"

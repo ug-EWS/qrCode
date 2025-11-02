@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class QrCodeActivity extends AppCompatActivity {
-
     public void copyResult(String text) {
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         clipboardManager.setPrimaryClip(ClipData.newPlainText("result", text));
@@ -55,4 +55,7 @@ public class QrCodeActivity extends AppCompatActivity {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
+    public void showMessage(int resId) {
+        showMessage(getString(resId));
+    }
 }

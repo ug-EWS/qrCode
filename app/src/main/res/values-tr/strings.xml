@@ -1,9 +1,8 @@
 <resources>
-    <string name="app_name">qrCode</string>
-
     <!--Main-->
     <string name="scan">Tara</string>
     <string name="generate">Oluştur</string>
+    <string name="gallery">Galeri</string>
     <string name="pick_from_gallery">GALERİDEN SEÇ</string>
     <string name="scan_history">Tarananlar</string>
     <string name="generate_history">Oluşturulanlar</string>
@@ -14,13 +13,43 @@
     <string name="colored_foreground">Renkli ön plan</string>
     <string name="colored_background">Renkli arka plan</string>
     <string name="hue">Renk:</string>
+    <string name="shade">Ton:</string>
     <string name="margin">Dış boşluk</string>
     <string name="format">Format</string>
     <string name="generate_info">Oluşturulan barkod burada görünecek</string>
-    <string name="generate_warning">Barkod oluşturulamadı</string>
+    <string name="generate_warning_not_suitable">Girdiğiniz yazı bu format\niçin uygun değil.</string>
+    <string name="generate_warning_too_long">Girdiğiniz yazı bu format için çok uzun.</string>
+    <string name="generate_warning_inv_char">Girdiğiniz yazı bu format için uygun olmayan karakterler içeriyor.</string>
+    <string name="generate_warning">Barkod oluşturulamadı. Yazıyı ya da ayarları değiştirmeyi deneyin.</string>
     <string name="save">Kaydet</string>
     <string name="share">Paylaş</string>
     <string name="or">ya da</string>
+    <string name="file_type">Dosya türü</string>
+    <string name="file_type_png">Bit eşlem (.png)</string>
+    <string name="file_type_jpg">Bit eşlem (.jpg)</string>
+    <string name="file_type_webp">Bit eşlem (.webp)</string>
+    <string name="file_type_svg">Vektör (.svg)</string>
+    <string name="magn_factor">Büyütme katsayısı</string>
+    <string name="magn_factor_desc">Barkodun orijinal boyutundan kaç kat büyük olacağını belirleyin. Yalnızca bit eşlem türleri için önemlidir.</string>
+    <string name="bar_length">Çizgi uzunluğu</string>
+    <string name="bar_length_desc">Barkodu oluşturan çizgilerin uzunluğunu belirleyin.</string>
+    <string name="readable_text">Barkod yazısı</string>
+    <string name="show">Göster</string>
+    <string name="hide">Gizle</string>
+    <string name="margin_desc">Barkodun etrafında ne kadar boşluk olacağını belirleyin.</string>
+    <string name="theme">Tema</string>
+    <string name="light">Açık</string>
+    <string name="dark">Koyu</string>
+    <string name="auto">Otomatik</string>
+    <string name="my_projects">Projelerim</string>
+    <string name="complete_project">Projeyi tamamla</string>
+    <string name="restart_project">Projeyi yeniden başlat</string>
+    <string name="cancel_project">Projeyi iptal et</string>
+    <string name="delete_project">Projeyi sil</string>
+    <string name="continue_project">Projeyi devam ettir</string>
+    <string name="edit_project">Projeyi düzenle</string>
+    <string name="projects_center">Proje Merkezi</string>
+    <string name="no_projects">Proje oluşturulmamış.</string>
 
     <!--Crop-->
     <string name="crop_image">Resmi kırp</string>
@@ -37,17 +66,18 @@
     <string name="result_info">Arama sonuçları burada görünecek</string>
     <string name="result_not_found">Sonuç bulunamadı</string>
     <string name="more_options">Diğer seçenekler</string>
-    <string name="search">Arayın</string>
+    <string name="search">Arayın…</string>
     <string name="items_selected">öge seçildi</string>
 
     <!--Dialog-->
     <string name="copy">Kopyala</string>
     <string name="_share">Paylaş</string>
-    <string name="regenerate">Oluştur</string>
+    <string name="regenerate">Yeniden oluştur</string>
+    <string name="delete_prompt">Bu öge silinsin mi?</string>
     <string name="delete">Sil</string>
     <string name="result">Sonuç</string>
     <string name="clear_history">Geçmişi sil</string>
-    <string name="number_delete_entries">öge silinsin mi?</string>
+    <string name="number_delete_entries">%d öge silinsin mi?</string>
     <string name="dialog_delete">Silinsin</string>
     <string name="dialog_no">Hayır</string>
     <string name="preview">Ön izleme</string>
@@ -62,7 +92,9 @@
     <string name="could_not_scan">Taranamadı</string>
     <string name="grant_permission">Barkodların taranabilmesi için kamera izni verilmelidir</string>
     <string name="deleted">Silindi</string>
-
+    <string name="could_not_get_file">Dosyaya erişilemiyor</string>
+    <string name="could_not_scan_checksum">Barkod düzgün okunamadı (ChecksumException).</string>
+    <string name="could_not_scan_format">Barkod düzgün okunamadı (FormatException).</string>
     <!---->
 
 </resources>

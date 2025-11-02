@@ -84,7 +84,8 @@ public class CropActivity extends AppCompatActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets insets1 = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(insets1.left, insets1.top, insets1.right, insets1.bottom);
+            Insets insets2 = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(Math.max(insets1.left, insets2.left), insets1.top, Math.max(insets1.right, insets2.right), insets1.bottom);
             return insets;
         });
 

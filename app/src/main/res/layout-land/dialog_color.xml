@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardBackgroundColor="@color/grey10"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ripple_on_purple"
+                android:padding="16dp"
+                app:srcCompat="@drawable/baseline_close_24" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="@string/color"
+                android:textColor="@color/grey6"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:id="@+id/applyButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@drawable/ripple_on_purple"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/addImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/baseline_done_24"
+                    app:tint="@color/purple_700" />
+
+                <TextView
+                    android:id="@+id/addText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/dialog_ok"
+                    android:textAllCaps="true"
+                    android:textColor="@color/purple_700"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:id="@+id/optionsLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioGroup
+                        android:id="@+id/radioGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@id/blackWhite">
+
+                        <RadioButton
+                            android:id="@+id/blackWhite"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/black_white"
+                            android:textColor="@color/grey6"
+                            android:textSize="16sp" />
+
+                        <RadioButton
+                            android:id="@+id/foreground"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/colored_foreground"
+                            android:textColor="@color/grey6"
+                            android:textSize="16sp" />
+
+                        <RadioButton
+                            android:id="@+id/background"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/colored_background"
+                            android:textColor="@color/grey6"
+                            android:textSize="16sp" />
+
+                    </RadioGroup>
+
+                    <LinearLayout
+                        android:id="@+id/hueLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/textView3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:padding="8dp"
+                                android:text="@string/hue"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/hue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:padding="8dp"
+                                android:text="0"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <SeekBar
+                            android:id="@+id/seekBar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:max="360"
+                            android:padding="8dp"
+                            android:progress="0" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/shadeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:padding="8dp"
+                                android:text="@string/shade"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/shade"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:padding="8dp"
+                                android:text="5"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <SeekBar
+                            android:id="@+id/shadeSeekBar"
+                            style="@style/Widget.AppCompat.SeekBar.Discrete"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:max="10"
+                            android:padding="8dp"
+                            android:progress="5" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </ScrollView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="1"
+                android:background="@drawable/back"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="@string/preview" />
+
+                <ImageView
+                    android:id="@+id/preview"
+                    android:layout_width="56dp"
+                    android:layout_height="57dp"
+                    android:layout_marginStart="16dp"
+                    android:background="@color/white"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/baseline_qr_code_24"
+                    app:tint="@color/black" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

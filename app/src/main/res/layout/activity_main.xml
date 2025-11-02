@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?color6_2"
+    android:background="@color/grey10"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -30,7 +30,7 @@
                 android:layout_weight="0"
                 android:padding="16dp"
                 app:srcCompat="@drawable/baseline_qr_code1_24"
-                app:tint="?tabpurple" />
+                app:tint="@color/purple_700" />
 
             <TextView
                 android:id="@+id/title"
@@ -38,8 +38,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/app_name"
-                android:textColor="?color0"
-                android:textSize="17sp" />
+                android:textColor="@color/grey6"
+                android:textSize="20sp" />
 
             <ImageView
                 android:id="@+id/doneButton"
@@ -48,45 +48,22 @@
                 android:layout_weight="0"
                 android:background="@drawable/ripple_on_purple"
                 android:padding="16dp"
-                app:srcCompat="@drawable/baseline_more_vert_24"
-                app:tint="?color0" />
+                app:srcCompat="@drawable/baseline_more_vert_24" />
 
         </LinearLayout>
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            app:tabGravity="center"
-            app:tabIndicatorColor="?tabpurple"
-            app:tabMode="fixed"
-            app:tabSelectedTextColor="?tabpurple">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/scan" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/generate" />
-
-        </com.google.android.material.tabs.TabLayout>
 
         <LinearLayout
             android:id="@+id/scanScreen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:padding="8dp"
             android:visibility="gone">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/scanCard"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_margin="8dp"
                 android:layout_weight="1"
                 android:clickable="false"
                 app:cardCornerRadius="16dp"
@@ -111,35 +88,7 @@
                     app:frameVerticalBias="0.5"
                     app:maskColor="#aa000000" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/scannerLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone">
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
             </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/or" />
-
-            <TextView
-                android:id="@+id/galleryButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/list_item_ripple"
-                android:gravity="center_horizontal|center_vertical"
-                android:padding="16dp"
-                android:text="@string/pick_from_gallery"
-                android:textColor="?tabpurple" />
 
         </LinearLayout>
 
@@ -154,36 +103,36 @@
             <EditText
                 android:id="@+id/generateEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="8dp"
                 android:layout_weight="1"
                 android:background="@drawable/edit_text_bg"
                 android:gravity="top"
                 android:hint="@string/type_something"
                 android:inputType="text|textImeMultiLine|textMultiLine"
-                android:maxLines="10"
-                android:minLines="3"
                 android:padding="16dp"
                 android:scrollbarAlwaysDrawVerticalTrack="true"
                 android:scrollbarStyle="insideOverlay"
                 android:scrollbars="vertical"
                 android:singleLine="false"
-                android:textColor="?color2_1"
-                android:textColorHint="?color3" />
+                android:textColor="@color/grey6"
+                android:textColorHint="@color/grey4" />
 
             <LinearLayout
                 android:id="@+id/optionsLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
 
                 <LinearLayout
                     android:id="@+id/formatButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="1dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_on_grey_top_round"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/ripple_list"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_horizontal|center_vertical"
@@ -205,7 +154,7 @@
                         android:gravity="center_horizontal"
                         android:singleLine="true"
                         android:text="@string/format"
-                        android:textColor="?color2" />
+                        android:textColor="@color/grey6" />
 
                     <TextView
                         android:id="@+id/formatText"
@@ -220,38 +169,36 @@
 
                     <ImageView
                         android:id="@+id/imageView3"
-                        android:layout_width="53dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="53dp"
                         android:padding="16dp"
-                        android:src="@drawable/baseline_arrow_forward_ios_24"
-                        app:tint="#888888" />
+                        android:src="@drawable/baseline_arrow_forward_ios_24" />
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="8dp"
                     android:orientation="horizontal">
 
                     <LinearLayout
                         android:id="@+id/colorButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="1dp"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/ripple_on_grey"
+                        android:background="@drawable/ripple_list"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_horizontal|center_vertical"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
+                            android:padding="8dp"
                             android:src="@drawable/baseline_color_lens_24" />
 
                         <TextView
@@ -261,7 +208,7 @@
                             android:gravity="center_horizontal"
                             android:singleLine="true"
                             android:text="@string/color"
-                            android:textColor="?color2" />
+                            android:textColor="@color/grey6" />
 
                         <TextView
                             android:id="@+id/colorText"
@@ -286,21 +233,19 @@
                         android:id="@+id/fileTypeButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="1dp"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/ripple_on_grey"
+                        android:background="@drawable/ripple_list"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_horizontal|center_vertical"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
+                            android:padding="8dp"
                             android:src="@drawable/baseline_photo_library_24" />
 
                         <TextView
@@ -309,8 +254,8 @@
                             android:ellipsize="middle"
                             android:gravity="center_horizontal"
                             android:singleLine="true"
-                            android:text="Dosya türü"
-                            android:textColor="?color2" />
+                            android:text="@string/file_type"
+                            android:textColor="@color/grey6" />
 
                         <TextView
                             android:id="@+id/fileTypeText"
@@ -318,7 +263,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
                             android:singleLine="true"
-                            android:text="Bit eşlem (.png)"
+                            android:text="@string/file_type_png"
                             android:textStyle="bold" />
 
                         <ImageView
@@ -335,20 +280,18 @@
                         android:id="@+id/sizeButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="1dp"
+                        android:layout_marginBottom="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/ripple_on_grey"
+                        android:background="@drawable/ripple_list"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_horizontal|center_vertical"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
+                            android:padding="8dp"
                             android:src="@drawable/baseline_zoom_out_map_24" />
 
                         <TextView
@@ -357,8 +300,8 @@
                             android:ellipsize="middle"
                             android:gravity="center_horizontal"
                             android:singleLine="true"
-                            android:text="Büyütme katsayısı"
-                            android:textColor="?color2" />
+                            android:text="@string/magn_factor"
+                            android:textColor="@color/grey6" />
 
                         <TextView
                             android:id="@+id/sizeText"
@@ -390,21 +333,19 @@
                         android:id="@+id/marginButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="1dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_marginBottom="1dp"
                         android:layout_weight="1"
-                        android:background="@drawable/ripple_on_grey_bottom_left_round"
+                        android:background="@drawable/ripple_list"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_horizontal|center_vertical"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
+                            android:padding="8dp"
                             android:src="@drawable/baseline_margin_24" />
 
                         <TextView
@@ -414,7 +355,7 @@
                             android:gravity="center_horizontal"
                             android:singleLine="true"
                             android:text="@string/margin"
-                            android:textColor="?color2" />
+                            android:textColor="@color/grey6" />
 
                         <TextView
                             android:id="@+id/marginText"
@@ -438,21 +379,19 @@
                         android:id="@+id/barLengthButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="1dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_marginBottom="1dp"
                         android:layout_weight="1"
-                        android:background="@drawable/ripple_on_grey"
+                        android:background="@drawable/ripple_list"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_horizontal|center_vertical"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
+                            android:padding="8dp"
                             android:src="@drawable/baseline_height_24" />
 
                         <TextView
@@ -461,8 +400,8 @@
                             android:ellipsize="middle"
                             android:gravity="center_horizontal"
                             android:singleLine="true"
-                            android:text="Çizgi uzunluğu"
-                            android:textColor="?color2" />
+                            android:text="@string/bar_length"
+                            android:textColor="@color/grey6" />
 
                         <TextView
                             android:id="@+id/barLengthText"
@@ -488,18 +427,16 @@
                         android:layout_height="match_parent"
                         android:layout_marginBottom="1dp"
                         android:layout_weight="1"
-                        android:background="@drawable/ripple_on_grey_bottom_right_round"
+                        android:background="@drawable/ripple_list"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_horizontal|center_vertical"
-                        android:orientation="vertical"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:orientation="vertical">
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
+                            android:padding="8dp"
                             android:src="@drawable/baseline_text_fields_24" />
 
                         <TextView
@@ -508,8 +445,8 @@
                             android:ellipsize="middle"
                             android:gravity="center_horizontal"
                             android:singleLine="true"
-                            android:text="Barkod yazısı"
-                            android:textColor="?color2" />
+                            android:text="@string/readable_text"
+                            android:textColor="@color/grey6" />
 
                         <TextView
                             android:id="@+id/readableText"
@@ -517,7 +454,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
                             android:singleLine="true"
-                            android:text="Gizle"
+                            android:text="@string/hide"
                             android:textStyle="bold" />
 
                         <ImageView
@@ -552,7 +489,7 @@
                         android:padding="16dp"
                         android:src="@drawable/baseline_more_vert_24"
                         android:visibility="invisible"
-                        app:tint="?color2" />
+                        app:tint="@color/grey6" />
 
                     <TextView
                         android:id="@+id/expandText"
@@ -579,6 +516,7 @@
                 android:id="@+id/bottomLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/ripple_on_white"
                 android:orientation="vertical"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp">
@@ -597,7 +535,7 @@
                         android:layout_height="match_parent"
                         android:layout_margin="16dp"
                         android:layout_weight="1"
-                        android:background="@drawable/list_item_ripple"
+                        android:background="@drawable/ripple_list"
                         android:gravity="center_horizontal|center_vertical"
                         android:orientation="vertical"
                         android:visibility="visible">
@@ -607,13 +545,13 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             app:srcCompat="@drawable/baseline_save_24"
-                            app:tint="?tabpurple" />
+                            app:tint="@color/purple_700" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/save"
-                            android:textColor="?tabpurple"
+                            android:textColor="@color/purple_700"
                             android:textSize="16sp" />
 
                     </LinearLayout>
@@ -646,7 +584,7 @@
                         android:layout_height="match_parent"
                         android:layout_margin="16dp"
                         android:layout_weight="1"
-                        android:background="@drawable/list_item_ripple"
+                        android:background="@drawable/ripple_list"
                         android:gravity="center_horizontal|center_vertical"
                         android:orientation="vertical"
                         android:visibility="visible">
@@ -656,13 +594,13 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             app:srcCompat="@drawable/baseline_share_24"
-                            app:tint="?tabpurple" />
+                            app:tint="@color/purple_700" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/share"
-                            android:textColor="?tabpurple"
+                            android:textColor="@color/purple_700"
                             android:textSize="16sp" />
 
                     </LinearLayout>
@@ -714,6 +652,120 @@
 
             </LinearLayout>
 
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:background="@drawable/bottom_bg"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/myPlaylistsButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_bottom"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/myPlaylistsIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/bottom_icon"
+                    android:paddingStart="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="4dp"
+                    app:srcCompat="@drawable/baseline_qr_code_scanner_24" />
+
+                <TextView
+                    android:id="@+id/myPlaylistsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="@string/scan"
+                    android:textColor="@color/teal_700"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/topStationsButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_bottom"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/topStationsIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="4dp"
+                    app:srcCompat="@drawable/baseline_photo_library_24" />
+
+                <TextView
+                    android:id="@+id/topStationsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="@string/gallery"
+                    android:textColor="@color/grey2"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/countriesButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_bottom"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/countriesIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="4dp"
+                    app:srcCompat="@drawable/baseline_auto_awesome_24" />
+
+                <TextView
+                    android:id="@+id/countriesText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="@string/generate"
+                    android:textColor="@color/grey2"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
